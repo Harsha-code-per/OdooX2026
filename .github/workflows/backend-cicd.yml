@@ -58,12 +58,10 @@ jobs:
         env:
           IMAGE_NAME: ${{ secrets.ACR_HOST }}/${{ secrets.ACR_REPOSITORY }}:${{ github.ref_name }}
         run: |
-          az extension add -n containerapp --allow-preview true
           az containerapp update \
             --name ${{ vars.AZURE_CONTAINER_APP_NAME }} \
             --resource-group ${{ vars.AZURE_CONTAINER_APP_RESOURCE_GROUP_NAME }} \
             --image "$IMAGE_NAME" \
-            --target-label production
 
       - name: Deployment Summary
         if: always()
