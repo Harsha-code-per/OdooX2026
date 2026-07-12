@@ -26,7 +26,7 @@ export const API_ENDPOINTS = {
 
   /* ─── Users ──────────────────────────────────────────────────────────────── */
   USERS: {
-    ME: "/users/me",
+    ME: "/auth/me",
     LIST: "/users",
     INVITE: "/users/invite",
     BY_ID: (id: string) => `/users/${id}`,

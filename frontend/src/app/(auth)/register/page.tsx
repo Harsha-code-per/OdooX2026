@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { AuthDivider } from "@/features/auth/components/auth-divider";
@@ -17,9 +18,12 @@ import {
   type RegisterInput,
   registerSchema,
 } from "@/features/auth/schemas/register.schema";
+import { getGoogleAuthUrl } from "@/services/auth.service";
 
 export default function RegisterPage() {
   const registerMutation = useRegister();
+  const [googleError, setGoogleError] = useState<string | null>(null);
+  const [isSocialLoading, setIsSocialLoading] = useState(false);
 
   const {
     register,
@@ -38,6 +42,23 @@ export default function RegisterPage() {
 
   const passwordValue = watch("password", "");
 
+  async function handleGoogleLogin() {
+    setIsSocialLoading(true);
+    setGoogleError(null);
+    try {
+      const data = await getGoogleAuthUrl();
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else {
+        throw new Error("Could not retrieve authorization URL");
+      }
+    } catch (err) {
+      const error = err as Error;
+      setIsSocialLoading(false);
+      setGoogleError(error.message || "Failed to trigger Google login");
+    }
+  }
+
   function onSubmit(data: RegisterInput) {
     registerMutation.mutate({
       name: data.name,
@@ -54,10 +75,10 @@ export default function RegisterPage() {
       />
 
       {/* Global mutation error banner */}
-      {registerMutation.isError && (
+      {(registerMutation.isError || googleError) && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/15 border border-destructive/30 text-destructive text-xs flex items-center gap-2">
           <AlertCircle size={14} className="flex-shrink-0" />
-          <span>{registerMutation.error.message}</span>
+          <span>{registerMutation.error?.message || googleError}</span>
         </div>
       )}
 
@@ -140,7 +161,8 @@ export default function RegisterPage() {
 
       <SocialButton
         label="Sign Up with Google"
-        onClick={() => console.info("[Mock] Google SignUp Triggered")}
+        isLoading={isSocialLoading}
+        onClick={handleGoogleLogin}
       />
 
       <AuthFooter

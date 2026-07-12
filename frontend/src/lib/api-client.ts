@@ -1,17 +1,9 @@
-import { API_BASE_URL, API_TIMEOUT_MS } from "@/constants/api";
+import { API_BASE_URL, API_ENDPOINTS, API_TIMEOUT_MS } from "@/constants/api";
+import { getCookie, removeCookie, setCookie } from "@/lib/cookies";
 import type { ApiError } from "@/types/api";
 
 /**
  * ApiClient — Centralized HTTP client for all API requests.
- *
- * Rules (per AGENTS.md and 01-frontend-architecture.md):
- * - Components must NEVER call fetch() or axios() directly
- * - All requests flow through this client → services → React Query → components
- * - Never hardcode base URLs — use API_BASE_URL constant
- * - All requests are typed
- *
- * Phase 1: Basic implementation (no auth headers)
- * Phase 12: Will add JWT injection, token refresh interceptor, retry logic
  */
 
 class ApiClientError extends Error {
@@ -25,36 +17,102 @@ class ApiClientError extends Error {
   }
 }
 
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  const refreshToken = getCookie("ecosphere_refresh_token");
+  if (!refreshToken) return null;
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Refresh token expired or invalid");
+    }
+
+    const data = await response.json();
+    const newAccessToken = data.access_token;
+    const newRefreshToken = data.refresh_token || refreshToken;
+
+    setCookie("ecosphere_access_token", newAccessToken, 1);
+    setCookie("ecosphere_refresh_token", newRefreshToken, 30);
+    return newAccessToken;
+  } catch (_error) {
+    removeCookie("ecosphere_access_token");
+    removeCookie("ecosphere_refresh_token");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("ecosphere-auth-failure"));
+    }
+    return null;
+  }
+}
+
 async function request<T>(
   method: string,
   endpoint: string,
   body?: unknown,
   headers?: Record<string, string>,
+  isRetry = false,
 ): Promise<T> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
+  const token = getCookie("ecosphere_access_token");
+  const requestHeaders: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...headers,
+  };
+
+  if (token) {
+    requestHeaders.Authorization = `Bearer ${token}`;
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        ...headers,
-      },
+      headers: requestHeaders,
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: controller.signal,
-      credentials: "include" /* Include httpOnly cookies for JWT */,
+      credentials: "include",
     });
 
     clearTimeout(timeoutId);
+
+    if (
+      response.status === 401 &&
+      !isRetry &&
+      endpoint !== API_ENDPOINTS.AUTH.LOGIN &&
+      endpoint !== API_ENDPOINTS.AUTH.REFRESH
+    ) {
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken().finally(() => {
+          refreshPromise = null;
+        });
+      }
+
+      const newAccessToken = await refreshPromise;
+      if (newAccessToken) {
+        return request<T>(method, endpoint, body, headers, true);
+      }
+    }
 
     if (!response.ok) {
       let errorData: ApiError | undefined;
       try {
         errorData = (await response.json()) as ApiError;
       } catch {
-        /* JSON parse failed — use status text */
+        /* JSON parse failed */
       }
 
       throw new ApiClientError(
@@ -64,7 +122,6 @@ async function request<T>(
       );
     }
 
-    /* 204 No Content — return empty */
     if (response.status === 204) {
       return undefined as T;
     }
