@@ -459,3 +459,19 @@ Before building any new models, we must fix the database migration structure so 
 1. Modify `backend/alembic/versions/001_initial_schema.py` to remove the foreign key constraint `sa.ForeignKeyConstraint(['head_user_id'], ['users.id'])` from the `departments` table creation block.
 2. In the same file, add the foreign key constraint via `op.create_foreign_key` *after* the `users` table has been created successfully.
 3. Update the seeded roles in `001_initial_schema.py` to seed `admin`, `manager`, and `employee` instead of the old roles, and align the `UserRole` enums in both the models and schemas.
+
+## Backend Testing Summary — Antigravity
+
+**Date:** July 12, 2026
+**Scope:** Local environment setup + backend boot/migration testing
+
+### Environment Setup
+- Cloned repo fresh, set up Python venv, installed dependencies (requirements.txt)
+- Spun up local PostgreSQL via Docker (esg-postgres container)
+- Configured .env with local DB connection and JWT secret
+
+### Bugs Found & Fixed
+1. Import error (fixed, pushed): app/schemas/user.py incorrectly imported UUID from typing instead of uuid module — caused immediate server crash on boot.
+2. Missing export (fixed, pushed): app/models/__init__.py did not export Base from app.database, breaking Alembic's model discovery (ImportError: cannot import name 'Base').
+
+### Bugs Found — Not
