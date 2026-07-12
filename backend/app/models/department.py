@@ -7,8 +7,8 @@ import uuid
 from app.database import Base
 
 class DepartmentStatus(str, Enum):
-    active = "active"
-    inactive = "inactive"
+    active = "ACTIVE"
+    inactive = "INACTIVE"
 
 class Department(Base):
     __tablename__ = "departments"

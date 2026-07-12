@@ -11,9 +11,9 @@ class UserRole(str, Enum):
     employee = "employee"
 
 class UserStatus(str, Enum):
-    active = "active"
-    inactive = "inactive"
-    locked = "locked"
+    active = "ACTIVE"
+    inactive = "INACTIVE"
+    locked = "LOCKED"
 
 class UserBase(BaseModel):
     email: EmailStr
