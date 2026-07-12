@@ -10,6 +10,7 @@ env/
 
 # Environment Variables
 .env
+jwt_creation.py
 
 # IDEs
 .vscode/
