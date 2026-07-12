@@ -52,7 +52,7 @@ def is_quiet_hours(preference: NotificationPreference) -> bool:
     if preference.quiet_hours_start <= preference.quiet_hours_end:
         return preference.quiet_hours_start <= current_time <= preference.quiet_hours_end
     else:  # Crosses midnight
-    return current_time >= preference.quiet_hours_start or current_time <= preference.quiet_hours_end
+        return current_time >= preference.quiet_hours_start or current_time <= preference.quiet_hours_end
 
 # Notification Endpoints
 @router.get("/", response_model=List[NotificationResponse])

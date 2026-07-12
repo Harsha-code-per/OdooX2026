@@ -98,5 +98,16 @@ class User(Base):
             self.status = UserStatus.ACTIVE
         self.last_login_at = datetime.utcnow()
 
+    def __getitem__(self, item):
+        if item == "id":
+            return str(self.id)
+        return getattr(self, item)
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except AttributeError:
+            return default
+
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, role={self.role_id})>"
