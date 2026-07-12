@@ -43,7 +43,8 @@ class AuthService:
             email=user_data.email,
             full_name=user_data.full_name,
             department_id=user_data.department_id,
-            role_id=4  # Default to employee role
+            role_id=4,  # Default to employee role
+            provider="email"  # Email registration
         )
         user.set_password(user_data.password)
         user.status = UserStatus.INACTIVE  # Inactive until email verified
@@ -109,7 +110,7 @@ class AuthService:
         # Create access token
         access_token = create_access_token({
             "sub": str(user.id),
-            "email": user.email,
+            "email": user.email,  # Include email in token for internal use
             "role_id": user.role_id,
             "full_name": user.full_name
         })
@@ -136,10 +137,11 @@ class AuthService:
             expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             user={
                 "id": str(user.id),
-                "email": user.email,
                 "full_name": user.full_name,
                 "role_id": user.role_id,
-                "must_change_password": user.must_change_password
+                "must_change_password": user.must_change_password,
+                "provider": user.provider,
+                "profile_picture": user.profile_picture
             }
         )
 
@@ -374,10 +376,14 @@ class AuthService:
         return True
 
     async def get_user_by_id(self, user_id: UUID) -> Optional[Dict[str, Any]]:
-        """Get user by ID with role and department info"""
+        """Get user by ID with role, department, and manager info"""
         result = await self.db.execute(
             select(User)
-            .options(selectinload(User.role), selectinload(User.department))
+            .options(
+                selectinload(User.role),
+                selectinload(User.department),
+                selectinload(User.manager)
+            )
             .where(User.id == user_id)
         )
         user = result.scalar_one_or_none()
@@ -387,14 +393,17 @@ class AuthService:
 
         return {
             "id": str(user.id),
-            "email": user.email,
             "full_name": user.full_name,
             "role_id": user.role_id,
             "role_name": user.role.name if user.role else None,
             "department_id": str(user.department_id) if user.department_id else None,
             "department_name": user.department.name if user.department else None,
+            "manager_id": str(user.manager_id) if user.manager_id else None,
+            "manager_name": user.manager.full_name if user.manager else None,
             "status": user.status.value,
             "must_change_password": user.must_change_password,
+            "provider": user.provider,
+            "profile_picture": user.profile_picture,
             "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
             "created_at": user.created_at.isoformat() if user.created_at else None,
             "updated_at": user.updated_at.isoformat() if user.updated_at else None

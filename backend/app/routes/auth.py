@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+from secrets import token_urlsafe
 
 from app.database import get_db
 from app.schemas.auth import (
@@ -9,7 +10,12 @@ from app.schemas.auth import (
     EmailVerificationResponse, PasswordResetRequest, PasswordResetConfirm,
     PasswordChangeRequest, LogoutResponse
 )
+from app.schemas.google_auth import (
+    GoogleAuthUrlResponse, GoogleCallbackRequest, GoogleAuthResponse,
+    GoogleLinkAccountRequest, GoogleUnlinkAccountResponse
+)
 from app.services.auth_service import AuthService
+from app.services.google_auth_service import GoogleAuthService
 from app.dependencies.auth import get_current_user
 from app.utils.email import email_service
 
@@ -214,3 +220,139 @@ async def get_current_user_info(
 ):
     """Get current user information"""
     return current_user
+
+# Google OAuth Endpoints
+
+@router.get("/google/login", response_model=GoogleAuthUrlResponse)
+async def google_login():
+    """Get Google OAuth authorization URL"""
+    state = token_urlsafe(32)  # Generate secure random state for CSRF protection
+
+    google_service = GoogleAuthService(None)  # No DB needed for URL generation
+    try:
+        auth_url = google_service.get_authorization_url(state)
+
+        return GoogleAuthUrlResponse(
+            authorization_url=auth_url,
+            state=state
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=str(e)
+        )
+
+@router.post("/google/callback", response_model=GoogleAuthResponse)
+async def google_callback(
+    callback_data: GoogleCallbackRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
+    """Handle Google OAuth callback and authenticate user"""
+    google_service = GoogleAuthService(db)
+
+    try:
+        # Process Google authentication
+        user, error_message = await google_service.handle_google_callback(callback_data.code)
+
+        if error_message:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_message
+            )
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to authenticate user with Google"
+            )
+
+        # Get user agent and IP address
+        user_agent = request.headers.get("user-agent")
+        ip_address = request.client.host if request.client else None
+
+        # Create tokens using auth service
+        auth_service = AuthService(db)
+        tokens = await auth_service.create_tokens(user, user_agent, ip_address)
+
+        # Check if this is a new user (created during this OAuth flow)
+        is_new_user = not user.must_change_password and user.department_id is None
+
+        return GoogleAuthResponse(
+            access_token=tokens.access_token,
+            refresh_token=tokens.refresh_token,
+            token_type=tokens.token_type,
+            expires_in=tokens.expires_in,
+            user=tokens.user,
+            is_new_user=is_new_user
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error during Google authentication: {str(e)}"
+        )
+
+@router.post("/google/link")
+async def link_google_account(
+    link_data: GoogleLinkAccountRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Link Google account to existing user account"""
+    from uuid import UUID
+
+    google_service = GoogleAuthService(db)
+
+    try:
+        success, message = await google_service.link_google_account(
+            UUID(current_user["id"]),
+            link_data.code
+        )
+
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=message
+            )
+
+        return {"message": message}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error linking Google account: {str(e)}"
+        )
+
+@router.post("/google/unlink", response_model=GoogleUnlinkAccountResponse)
+async def unlink_google_account(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Unlink Google account from user account"""
+    from uuid import UUID
+
+    google_service = GoogleAuthService(db)
+
+    try:
+        success, message = await google_service.unlink_google_account(UUID(current_user["id"]))
+
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=message
+            )
+
+        return GoogleUnlinkAccountResponse(message=message)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error unlinking Google account: {str(e)}"
+        )

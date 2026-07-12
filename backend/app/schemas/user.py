@@ -48,6 +48,9 @@ class UserResponse(BaseModel):
     last_login_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    provider: str = "email"
+    profile_picture: Optional[str] = None
+    manager_id: Optional[UUID] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +62,7 @@ class UserLogin(BaseModel):
 class UserResponseWithRole(UserResponse):
     role_name: Optional[str] = None
     department_name: Optional[str] = None
+    manager_name: Optional[str] = None
 
     class Config:
         from_attributes = True

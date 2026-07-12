@@ -11,10 +11,12 @@ A comprehensive FastAPI backend with JWT authentication, email verification, pas
 ## Features
 
 - **JWT Authentication**: Secure token-based authentication with access and refresh tokens
+- **Google OAuth**: Additional authentication method via Google OAuth 2.0
 - **Token Rotation**: Automatic refresh token rotation for enhanced security
 - **Email Verification**: User email verification workflow
 - **Password Reset**: Secure password reset with time-limited tokens
 - **Role-Based Access Control**: Multiple user roles (admin, asset_manager, department_head, employee)
+- **Manager Relationships**: Employee-manager reporting structure
 - **Account Security**: Failed login attempt tracking and account lockout
 - **Async Database**: High-performance async PostgreSQL with SQLAlchemy
 - **Database Migrations**: Alembic-based database version control
@@ -87,7 +89,93 @@ Once running, visit:
 - **Swagger UI**: `http://localhost:8000/docs`
 - **ReDoc**: `http://localhost:8000/redoc`
 
+## Authentication Methods
+
+### Email/Password Authentication
+Traditional username and password authentication with email verification.
+
+### Google OAuth Authentication
+Secure authentication via Google OAuth 2.0:
+- Automatic user creation on first Google login
+- No email verification required for Google users
+- Link/unlink Google accounts to existing email accounts
+- Google users created as employees (role assignment by admin)
+
+📖 **See [GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md) for complete Google OAuth setup guide**
+
+### Manager Relationships
+Users can be assigned managers for organizational hierarchy:
+- Managers can view their subordinate employees
+- Admin users can assign and modify manager relationships
+- Supports multi-level management structure
+
 ## Authentication Endpoints
+
+### Google OAuth Setup
+
+#### 1. Get Google OAuth URL
+
+```bash
+GET /api/v1/auth/google/login
+```
+
+Response:
+```json
+{
+  "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?...",
+  "state": "random-state-string"
+}
+```
+
+#### 2. Handle Google Callback
+
+```bash
+POST /api/v1/auth/google/callback
+Content-Type: application/json
+
+{
+  "code": "authorization-code-from-google",
+  "state": "random-state-string"
+}
+```
+
+Response:
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "token_type": "bearer",
+  "expires_in": 10800,
+  "user": {
+    "id": "user-uuid",
+    "full_name": "John Doe",
+    "role_id": 4,
+    "must_change_password": false,
+    "provider": "google",
+    "profile_picture": "https://..."
+  },
+  "is_new_user": true
+}
+```
+
+#### 3. Link Google Account (Authenticated)
+
+```bash
+POST /api/v1/auth/google/link
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "code": "authorization-code-from-google"
+}
+```
+
+#### 4. Unlink Google Account (Authenticated)
+
+```bash
+POST /api/v1/auth/google/unlink
+Authorization: Bearer your-access-token
+```
 
 ### Registration
 

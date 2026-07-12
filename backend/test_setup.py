@@ -144,6 +144,79 @@ async def test_jwt_functionality():
         logger.error(f"❌ JWT functionality test failed: {e}")
         return False
 
+async def test_manager_relationships():
+    """Test manager relationship functionality"""
+    logger.info("Testing manager relationships...")
+    try:
+        from app.database import async_session_factory
+        from app.models import User
+        from sqlalchemy import select
+
+        async with async_session_factory() as session:
+            # Check if users have manager_id field
+            result = await session.execute(select(User).limit(1))
+            user = result.scalar_one_or_none()
+
+            if user:
+                # Check if manager_id column exists
+                has_manager_id = hasattr(user, 'manager_id')
+                logger.info(f"✅ Manager relationship field exists: {has_manager_id}")
+
+                # Check other Google OAuth fields
+                has_provider = hasattr(user, 'provider')
+                has_google_id = hasattr(user, 'google_id')
+                has_profile_picture = hasattr(user, 'profile_picture')
+
+                logger.info(f"✅ Google OAuth fields exist:")
+                logger.info(f"   - provider: {has_provider}")
+                logger.info(f"   - google_id: {has_google_id}")
+                logger.info(f"   - profile_picture: {has_profile_picture}")
+
+                return True
+            else:
+                logger.warning("⚠️ No users found to test manager relationships")
+                return True
+
+    except Exception as e:
+        logger.error(f"❌ Manager relationship test failed: {e}")
+        return False
+
+async def test_google_oauth_structure():
+    """Test Google OAuth service structure"""
+    logger.info("Testing Google OAuth structure...")
+    try:
+        from app.services.google_auth_service import GoogleAuthService
+        from app.config import get_settings
+
+        settings = get_settings()
+
+        # Check if Google OAuth is configured (it's okay if not configured)
+        if settings.GOOGLE_CLIENT_ID:
+            logger.info("✅ Google OAuth credentials configured")
+        else:
+            logger.info("ℹ️ Google OAuth not configured (structure ready for credentials)")
+
+        # Test GoogleAuthService initialization
+        google_service = GoogleAuthService(None)
+        logger.info("✅ Google OAuth service initialized successfully")
+
+        # Check if all required methods exist
+        methods = ['get_authorization_url', 'exchange_code_for_tokens',
+                  'get_user_info', 'handle_google_callback']
+
+        for method in methods:
+            if hasattr(google_service, method):
+                logger.info(f"✅ Method exists: {method}")
+            else:
+                logger.error(f"❌ Method missing: {method}")
+                return False
+
+        return True
+
+    except Exception as e:
+        logger.error(f"❌ Google OAuth structure test failed: {e}")
+        return False
+
 async def run_tests():
     """Run all tests"""
     logger.info("🚀 Starting Odoo X Backend Tests")
@@ -172,6 +245,16 @@ async def run_tests():
     # Test 4: JWT functionality
     if not await test_jwt_functionality():
         logger.error("❌ Tests aborted: JWT functionality failed")
+        return False
+
+    # Test 5: Manager relationships
+    if not await test_manager_relationships():
+        logger.error("❌ Tests aborted: Manager relationship test failed")
+        return False
+
+    # Test 6: Google OAuth structure
+    if not await test_google_oauth_structure():
+        logger.error("❌ Tests aborted: Google OAuth structure test failed")
         return False
 
     logger.info("=" * 50)

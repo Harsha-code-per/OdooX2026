@@ -8,6 +8,10 @@ from app.schemas.auth import (
     EmailVerificationResponse, PasswordResetRequest, PasswordResetConfirm,
     PasswordChangeRequest, LogoutResponse, TokenResponse
 )
+from app.schemas.google_auth import (
+    GoogleAuthUrlResponse, GoogleCallbackRequest, GoogleAuthResponse,
+    GoogleLinkAccountRequest, GoogleUnlinkAccountResponse
+)
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin",
@@ -15,5 +19,7 @@ __all__ = [
     "LoginRequest", "LoginResponse", "RefreshTokenRequest", "RefreshTokenResponse",
     "RegisterRequest", "RegisterResponse", "EmailVerificationRequest",
     "EmailVerificationResponse", "PasswordResetRequest", "PasswordResetConfirm",
-    "PasswordChangeRequest", "LogoutResponse", "TokenResponse"
+    "PasswordChangeRequest", "LogoutResponse", "TokenResponse",
+    "GoogleAuthUrlResponse", "GoogleCallbackRequest", "GoogleAuthResponse",
+    "GoogleLinkAccountRequest", "GoogleUnlinkAccountResponse"
 ]
