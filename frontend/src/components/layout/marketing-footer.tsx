@@ -1,4 +1,4 @@
-import { Leaf } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 
@@ -65,9 +65,13 @@ export function MarketingFooter() {
               href="/"
               className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-ring rounded-lg w-fit"
             >
-              <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                <Leaf size={14} className="text-primary-foreground" />
-              </div>
+              <Image
+                src="/logo-ecosphere.png"
+                alt="EcoSphere logo"
+                width={28}
+                height={28}
+                className="h-7 w-7 rounded-lg"
+              />
               <span className="font-semibold text-foreground tracking-tight">
                 EcoSphere
               </span>

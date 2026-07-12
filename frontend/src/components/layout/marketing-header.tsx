@@ -1,6 +1,7 @@
 "use client";
 
-import { Leaf, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/navigation/theme-toggle";
@@ -85,9 +86,14 @@ export function MarketingHeader() {
           href="/"
           className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-ring rounded-lg"
         >
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/20">
-            <Leaf size={16} className="text-primary-foreground" />
-          </div>
+          <Image
+            src="/logo-ecosphere.png"
+            alt="EcoSphere logo"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-lg shadow-md shadow-primary/20"
+            priority
+          />
           <span className="font-semibold text-foreground tracking-tight text-lg">
             EcoSphere
           </span>
@@ -174,9 +180,13 @@ export function MarketingHeader() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                    <Leaf size={16} className="text-primary-foreground" />
-                  </div>
+                  <Image
+                    src="/logo-ecosphere.png"
+                    alt="EcoSphere logo"
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 rounded-lg"
+                  />
                   <span className="font-semibold text-foreground">
                     EcoSphere
                   </span>
