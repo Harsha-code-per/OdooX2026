@@ -47,7 +47,7 @@ class AuthService:
             provider="email"  # Email registration
         )
         user.set_password(user_data.password)
-        user.status = UserStatus.INACTIVE  # Inactive until email verified
+        user.status = UserStatus.inactive  # Inactive until email verified
 
         self.db.add(user)
         await self.db.flush()
@@ -85,7 +85,7 @@ class AuthService:
             return None, "Account is locked due to multiple failed login attempts"
 
         # Check if account is inactive
-        if user.status == UserStatus.INACTIVE:
+        if user.status == UserStatus.inactive:
             return None, "Please verify your email before logging in"
 
         # Verify password
@@ -367,7 +367,7 @@ class AuthService:
         if not user:
             return False
 
-        user.status = UserStatus.ACTIVE
+        user.status = UserStatus.active
 
         # Mark token as verified
         email_token.mark_as_verified()

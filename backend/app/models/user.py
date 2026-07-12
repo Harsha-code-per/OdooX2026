@@ -9,9 +9,9 @@ import bcrypt
 from datetime import datetime
 
 class UserStatus(str, Enum):
-    ACTIVE = "ACTIVE"
-    INACTIVE = "INACTIVE"
-    LOCKED = "LOCKED"
+    active = "active"
+    inactive = "inactive"
+    locked = "locked"
 
 class UserRole(str, Enum):
     admin = "admin"
@@ -88,14 +88,14 @@ class User(Base):
         if self.failed_login_attempts >= 5:  # Max attempts from config
             from datetime import timedelta
             self.locked_until = datetime.utcnow() + timedelta(minutes=30)
-            self.status = UserStatus.LOCKED
+            self.status = UserStatus.locked
 
     def record_successful_login(self):
         """Reset failed login attempts on successful login"""
         self.failed_login_attempts = 0
         self.locked_until = None
-        if self.status == UserStatus.LOCKED:
-            self.status = UserStatus.ACTIVE
+        if self.status == UserStatus.locked:
+            self.status = UserStatus.active
         self.last_login_at = datetime.utcnow()
 
     def __repr__(self):
