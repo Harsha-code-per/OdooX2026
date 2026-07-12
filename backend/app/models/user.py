@@ -9,15 +9,15 @@ import bcrypt
 from datetime import datetime
 
 class UserStatus(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    LOCKED = "locked"
+    active = "active"
+    inactive = "inactive"
+    locked = "locked"
 
 class UserRole(str, Enum):
-    ADMIN = "admin"
-    ASSET_MANAGER = "asset_manager"
-    DEPARTMENT_HEAD = "department_head"
-    EMPLOYEE = "employee"
+    admin = "admin"
+    asset_manager = "asset_manager"
+    department_head = "department_head"
+    employee = "employee"
 
 class User(Base):
     __tablename__ = "users"
@@ -32,7 +32,7 @@ class User(Base):
     provider = Column(String(20), nullable=False, default="email")  # 'email' or 'google'
     google_id = Column(String(255), nullable=True, unique=True)  # Google user ID for OAuth users
     profile_picture = Column(String(500), nullable=True)  # URL to profile picture
-    status = Column(SQLEnum(UserStatus), nullable=False, default=UserStatus.ACTIVE, index=True)
+    status = Column(SQLEnum(UserStatus), nullable=False, default=UserStatus.active, index=True)
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
     failed_login_attempts = Column(Integer, nullable=False, default=0)
@@ -41,7 +41,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    department = relationship("Department", back_populates="users")
+    department = relationship("Department", back_populates="users", foreign_keys=[department_id])
     role = relationship("Role", back_populates="users")
     manager = relationship("User", remote_side=[id], backref="subordinates")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
