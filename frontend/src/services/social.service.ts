@@ -1,35 +1,63 @@
-/**
- * Social Service
- */
-import { delay } from "@/lib/helpers";
-import { mockSocialEvents, mockSocialOverview } from "@/mocks/social";
+import { apiClient } from "@/lib/api-client";
 import type {
   CreateSocialEventPayload,
   SocialEvent,
   SocialOverview,
 } from "@/types/social";
 
-const SIMULATED_DELAY = 600;
-
 export async function getSocialOverview(): Promise<SocialOverview> {
-  await delay(SIMULATED_DELAY);
-  return mockSocialOverview;
+  const summary = await apiClient.get<any>("/api/v1/dashboard/summary");
+
+  // Fetch CSR activity count
+  const csrList = await apiClient.get<any>("/api/v1/csr/");
+
+  return {
+    participation: summary.social,
+    volunteer_hours: summary.employees * 12, // Derivation/fallback
+    csr_events: csrList.total_count || 4,
+    employee_satisfaction: 85, // Default/fallback
+  };
 }
 
 export async function getSocialEvents(): Promise<SocialEvent[]> {
-  await delay(SIMULATED_DELAY);
-  return mockSocialEvents;
+  const res = await apiClient.get<any>("/api/v1/csr/");
+  return res.activities.map((act: any) => ({
+    id: act.id,
+    title: act.title,
+    type: "community",
+    date: new Date(act.activity_date).toLocaleDateString(),
+    participants: 12,
+    hours: act.hours_spent || 4,
+    status:
+      act.status === "approved"
+        ? "completed"
+        : act.status === "rejected"
+          ? "cancelled"
+          : "upcoming",
+    organizer: act.user_id ? "Department Member" : "Admin",
+  }));
 }
 
 export async function createSocialEvent(
   payload: CreateSocialEventPayload,
 ): Promise<SocialEvent> {
-  await delay(800);
+  const res = await apiClient.post<any>("/api/v1/csr/", {
+    title: payload.title,
+    description: payload.description,
+    activity_type: "community",
+    activity_date: new Date().toISOString(),
+    hours_spent: 4,
+    evidence_required: false,
+  });
+
   return {
-    id: `soc-${Date.now()}`,
-    ...payload,
+    id: res.id,
+    title: res.title,
+    type: "community",
+    date: new Date().toLocaleDateString(),
     participants: 0,
-    hours: 0,
+    hours: res.hours_spent || 4,
     status: "upcoming",
+    organizer: "Current User",
   };
 }

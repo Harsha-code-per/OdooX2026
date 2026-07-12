@@ -113,8 +113,8 @@ class EvidenceDocument(Base):
 
     # Relationships
     csr_activity = relationship("CSRActivity", back_populates="evidence_documents")
-    user = relationship("User", backref="uploaded_evidence")
-    verifier = relationship("User", backref="verified_evidence")
+    user = relationship("User", foreign_keys=[user_id], backref="uploaded_evidence")
+    verifier = relationship("User", foreign_keys=[verified_by], backref="verified_evidence")
 
     # Indexes
     __table_args__ = (

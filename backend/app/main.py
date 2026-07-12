@@ -6,6 +6,8 @@ from app.routes.carbon_emissions import router as carbon_emissions_router
 from app.routes.csr_activities import router as csr_activities_router
 from app.routes.badges import router as badges_router
 from app.routes.compliance import router as compliance_router
+from app.routes.challenges import router as challenges_router
+from app.routes.dashboard import router as dashboard_router
 from app.database import init_db, close_db
 from app.config import get_settings
 import logging
@@ -64,6 +66,8 @@ app.include_router(carbon_emissions_router, prefix="/api/v1")
 app.include_router(csr_activities_router, prefix="/api/v1")
 app.include_router(badges_router, prefix="/api/v1")
 app.include_router(compliance_router, prefix="/api/v1")
+app.include_router(challenges_router, prefix="/api/v1")
+app.include_router(dashboard_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

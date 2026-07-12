@@ -584,3 +584,43 @@ async def trigger_auto_calculation_all(
             failed_count=1,
             errors=[str(e)]
         )
+
+
+# ==========================================
+# ENVIRONMENTAL GOAL ENDPOINTS
+# ==========================================
+from app.models.environmental_goal import EnvironmentalGoal
+from app.schemas.carbon_emission import EnvironmentalGoalCreate, EnvironmentalGoalResponse
+
+@router.get("/goals", response_model=List[EnvironmentalGoalResponse])
+async def get_environmental_goals(
+    department_id: Optional[UUID] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get active sustainability environmental goals"""
+    query = select(EnvironmentalGoal)
+    if department_id:
+        query = query.where(EnvironmentalGoal.department_id == department_id)
+    result = await db.execute(query.order_by(EnvironmentalGoal.deadline.asc()))
+    return result.scalars().all()
+
+@router.post("/goals", response_model=EnvironmentalGoalResponse, status_code=status.HTTP_201_CREATED)
+async def create_environmental_goal(
+    goal_data: EnvironmentalGoalCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new environmental sustainability goal"""
+    new_goal = EnvironmentalGoal(
+        name=goal_data.name,
+        department_id=goal_data.department_id,
+        target_co2_kg=goal_data.target_co2_kg,
+        current_co2_kg=goal_data.current_co2_kg,
+        deadline=goal_data.deadline.date(),
+        status=goal_data.status
+    )
+    db.add(new_goal)
+    await db.commit()
+    await db.refresh(new_goal)
+    return new_goal

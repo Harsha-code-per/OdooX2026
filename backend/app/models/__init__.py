@@ -14,6 +14,7 @@ from app.models.carbon_emission import CarbonTransaction, Purchase, Manufacturin
 from app.models.csr_activity import CSRActivity, EvidenceDocument, CSRActivityType, CSRActivityStatus
 from app.models.badge import Badge, BadgeUnlockRule, UserBadge, BadgeProgress, BadgeCategory, BadgeUnlockMetric
 from app.models.compliance import ComplianceIssue, ComplianceIssueComment, ComplianceIssueAttachment, ComplianceIssueCategory, ComplianceIssueSeverity, ComplianceIssueStatus
+from app.models.challenge import Challenge, ChallengeParticipation
 
 __all__ = [
     "Base",
@@ -31,5 +32,6 @@ __all__ = [
     "CarbonTransaction", "Purchase", "Manufacturing", "Expense", "Fleet", "CarbonTransactionType", "CarbonTransactionStatus",
     "CSRActivity", "EvidenceDocument", "CSRActivityType", "CSRActivityStatus",
     "Badge", "BadgeUnlockRule", "UserBadge", "BadgeProgress", "BadgeCategory", "BadgeUnlockMetric",
-    "ComplianceIssue", "ComplianceIssueComment", "ComplianceIssueAttachment", "ComplianceIssueCategory", "ComplianceIssueSeverity", "ComplianceIssueStatus"
+    "ComplianceIssue", "ComplianceIssueComment", "ComplianceIssueAttachment", "ComplianceIssueCategory", "ComplianceIssueSeverity", "ComplianceIssueStatus",
+    "Challenge", "ChallengeParticipation"
 ]

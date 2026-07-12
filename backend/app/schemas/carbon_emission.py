@@ -203,3 +203,24 @@ class AutoCalculationResponse(BaseModel):
     failed_count: int
     errors: List[str] = []
     total_emissions: Optional[Decimal] = None
+
+
+# Environmental Goal Schemas
+class EnvironmentalGoalBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=120)
+    target_co2_kg: Decimal = Field(..., ge=0)
+    current_co2_kg: Decimal = Field(default=0, ge=0)
+    deadline: datetime
+    status: str = Field(default="active")
+
+class EnvironmentalGoalCreate(EnvironmentalGoalBase):
+    department_id: UUID
+
+class EnvironmentalGoalResponse(EnvironmentalGoalBase):
+    id: UUID
+    department_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

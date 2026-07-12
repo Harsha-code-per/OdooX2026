@@ -32,6 +32,7 @@ export interface ChallengeProgress {
   progress: number;
   completedAt?: string;
   points_earned?: number;
+  status?: string;
 }
 
 export interface Badge {
