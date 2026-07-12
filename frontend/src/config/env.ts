@@ -5,10 +5,7 @@ import { z } from "zod";
  * Validates variables at runtime to prevent configuration bugs in production.
  */
 const envSchema = z.object({
-  NEXT_PUBLIC_API_URL: z
-    .string()
-    .url("NEXT_PUBLIC_API_URL must be a valid URL")
-    .default("http://localhost:8000/api/v1"),
+  NEXT_PUBLIC_API_URL: z.string().default("/api/v1"),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
