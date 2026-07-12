@@ -20,16 +20,16 @@ interface PasswordFieldProps
 
 export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
   (
-    { label, error, showStrength = false, value = "", className, id, ...props },
+    { label, error, showStrength = false, value, className, id, ...props },
     ref,
   ) => {
     const [showPassword, setShowPassword] = useState(false);
     const inputId = id ?? props.name;
 
-    const strengthScore = showStrength ? getPasswordStrength(value) : 0;
-    const strengthLabel = showStrength
-      ? getPasswordStrengthLabel(strengthScore)
-      : "";
+    const strengthScore =
+      showStrength && value ? getPasswordStrength(value) : 0;
+    const strengthLabel =
+      showStrength && value ? getPasswordStrengthLabel(strengthScore) : "";
 
     function toggleShowPassword() {
       setShowPassword((prev) => !prev);
@@ -73,7 +73,7 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
         </div>
 
         {/* Password Strength Indicator */}
-        {showStrength && value.length > 0 && (
+        {showStrength && value && value.length > 0 && (
           <div className="space-y-1.5 pt-1 animate-fade-in">
             <div className="flex items-center justify-between text-[10px] font-semibold">
               <span className="text-muted-foreground">Password Strength:</span>
