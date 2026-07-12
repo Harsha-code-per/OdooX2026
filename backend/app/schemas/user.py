@@ -1,18 +1,19 @@
 from pydantic import BaseModel, EmailStr, Field, validator
-from typing import Optional, UUID
+from typing import Optional
+from uuid import UUID
 from datetime import datetime
 from enum import Enum
 
 class UserRole(str, Enum):
-    ADMIN = "admin"
-    ASSET_MANAGER = "asset_manager"
-    DEPARTMENT_HEAD = "department_head"
-    EMPLOYEE = "employee"
+    admin = "admin"
+    asset_manager = "asset_manager"
+    department_head = "department_head"
+    employee = "employee"
 
 class UserStatus(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    LOCKED = "locked"
+    active = "active"
+    inactive = "inactive"
+    locked = "locked"
 
 class UserBase(BaseModel):
     email: EmailStr

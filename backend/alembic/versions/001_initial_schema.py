@@ -18,7 +18,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create roles table
+    # Step 1: Create roles table (no dependencies)
     op.create_table(
         'roles',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -30,19 +30,19 @@ def upgrade() -> None:
         sa.UniqueConstraint('name')
     )
 
-    # Create departments table
+    # Step 2: Create departments table WITHOUT head_user_id foreign key (circular dependency resolution)
     op.create_table(
         'departments',
         sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('gen_random_uuid()'), nullable=False),
         sa.Column('name', sa.String(length=120), nullable=False),
         sa.Column('code', sa.String(length=20), nullable=False),
-        sa.Column('head_user_id', postgresql.UUID(as_uuid=True), nullable=True),
+        sa.Column('head_user_id', postgresql.UUID(as_uuid=True), nullable=True),  # Column exists, but no FK constraint yet
         sa.Column('parent_department_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('employee_count', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('status', sa.String(length=20), nullable=False, server_default='active'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-        sa.ForeignKeyConstraint(['head_user_id'], ['users.id'], ),
+        # Only include parent_department_id FK (self-referencing), not head_user_id FK yet
         sa.ForeignKeyConstraint(['parent_department_id'], ['departments.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('code')
@@ -50,7 +50,7 @@ def upgrade() -> None:
     op.create_index('ix_departments_parent_department_id', 'departments', ['parent_department_id'], unique=False)
     op.create_index('ix_departments_status', 'departments', ['status'], unique=False)
 
-    # Create users table
+    # Step 3: Create users table with department_id FK (departments exists now, so this works)
     op.create_table(
         'users',
         sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('gen_random_uuid()'), nullable=False),
@@ -76,11 +76,15 @@ def upgrade() -> None:
     op.create_index('ix_users_role_id', 'users', ['role_id'], unique=False)
     op.create_index('ix_users_status', 'users', ['status'], unique=False)
 
-    # Update departments foreign key to users
-    op.execute('ALTER TABLE departments DROP CONSTRAINT IF EXISTS departments_head_user_id_fkey')
-    op.execute('ALTER TABLE departments ADD CONSTRAINT departments_head_user_id_fkey FOREIGN KEY (head_user_id) REFERENCES users(id) ON DELETE SET NULL')
+    # Step 4: Now add the head_user_id foreign key to departments (circular dependency resolution)
+    op.create_foreign_key(
+        'departments_head_user_id_fkey',
+        'departments', 'users',
+        ['head_user_id'], ['id'],
+        ondelete='SET NULL'
+    )
 
-    # Create refresh_tokens table
+    # Step 5: Create refresh_tokens table (depends on users)
     op.create_table(
         'refresh_tokens',
         sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('gen_random_uuid()'), nullable=False),
@@ -99,7 +103,7 @@ def upgrade() -> None:
     op.create_index('ix_refresh_tokens_user_id', 'refresh_tokens', ['user_id'], unique=False)
     op.create_index('ix_refresh_tokens_user_id_revoked_at', 'refresh_tokens', ['user_id', 'revoked_at'], unique=False)
 
-    # Create password_reset_tokens table
+    # Step 6: Create password_reset_tokens table (depends on users)
     op.create_table(
         'password_reset_tokens',
         sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('gen_random_uuid()'), nullable=False),
@@ -115,7 +119,7 @@ def upgrade() -> None:
     op.create_index('ix_password_reset_tokens_expires_at', 'password_reset_tokens', ['expires_at'], unique=False)
     op.create_index('ix_password_reset_tokens_user_id', 'password_reset_tokens', ['user_id'], unique=False)
 
-    # Create email_verification_tokens table
+    # Step 7: Create email_verification_tokens table (depends on users)
     op.create_table(
         'email_verification_tokens',
         sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('gen_random_uuid()'), nullable=False),
@@ -133,7 +137,7 @@ def upgrade() -> None:
     op.create_index('ix_email_verification_tokens_token_hash', 'email_verification_tokens', ['token_hash'], unique=False)
     op.create_index('ix_email_verification_tokens_user_id', 'email_verification_tokens', ['user_id'], unique=False)
 
-    # Seed default roles
+    # Step 8: Seed default roles
     op.execute("""
         INSERT INTO roles (name, description, is_system) VALUES
         ('admin', 'System administrator with full access', true),
@@ -144,7 +148,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Drop tables in reverse order
+    # Drop foreign key first
+    op.drop_constraint('departments_head_user_id_fkey', 'departments')
+
+    # Drop tables in reverse order of creation
     op.drop_table('email_verification_tokens')
     op.drop_table('password_reset_tokens')
     op.drop_table('refresh_tokens')

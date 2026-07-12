@@ -16,21 +16,21 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup"""
+    """Initialize database connectivity on startup"""
     logger.info("Starting up Odoo X API...")
     try:
         await init_db()
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize database: {e}")
-        # Don't raise the exception to allow the app to start even if DB is not ready
+        logger.info("Odoo X API startup completed successfully")
+    except Exception:
+        logger.exception("Failed to start Odoo X API - database connection required")
+        raise  # Crash immediately if database connection fails
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database connections on shutdown"""
     logger.info("Shutting down Odoo X API...")
     await close_db()
-    logger.info("Database connections closed")
+    logger.info("Odoo X API shutdown completed")
 
 # Include routers
 app.include_router(auth_router, prefix="/api/v1")
