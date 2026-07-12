@@ -9,9 +9,9 @@ import bcrypt
 from datetime import datetime
 
 class UserStatus(str, Enum):
-    active = "ACTIVE"
-    inactive = "INACTIVE"
-    locked = "LOCKED"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    LOCKED = "LOCKED"
 
 class UserRole(str, Enum):
     admin = "admin"
@@ -32,7 +32,7 @@ class User(Base):
     provider = Column(String(20), nullable=False, default="email")  # 'email' or 'google'
     google_id = Column(String(255), nullable=True, unique=True)  # Google user ID for OAuth users
     profile_picture = Column(String(500), nullable=True)  # URL to profile picture
-    status = Column(SQLEnum(UserStatus), nullable=False, default=UserStatus.active, index=True)
+    status = Column(SQLEnum(UserStatus), nullable=False, default=UserStatus.ACTIVE, index=True)
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
     failed_login_attempts = Column(Integer, nullable=False, default=0)
@@ -88,14 +88,14 @@ class User(Base):
         if self.failed_login_attempts >= 5:  # Max attempts from config
             from datetime import timedelta
             self.locked_until = datetime.utcnow() + timedelta(minutes=30)
-            self.status = UserStatus.locked
+            self.status = UserStatus.LOCKED
 
     def record_successful_login(self):
         """Reset failed login attempts on successful login"""
         self.failed_login_attempts = 0
         self.locked_until = None
-        if self.status == UserStatus.locked:
-            self.status = UserStatus.active
+        if self.status == UserStatus.LOCKED:
+            self.status = UserStatus.ACTIVE
         self.last_login_at = datetime.utcnow()
 
     def __repr__(self):

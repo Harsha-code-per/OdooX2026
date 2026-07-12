@@ -87,7 +87,7 @@ def verify_token_hash(token: str, token_hash: str) -> bool:
 
 def generate_verification_token() -> str:
     """Generate a secure random token for email verification and password reset"""
-    return secrets.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8')
+    return secrets.token_urlsafe(32)
 
 def hash_verification_token(token: str) -> str:
     """Hash a verification token for storage"""
