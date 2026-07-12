@@ -9,9 +9,9 @@ import bcrypt
 from datetime import datetime
 
 class UserStatus(str, Enum):
-    active = "active"
-    inactive = "inactive"
-    locked = "locked"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    LOCKED = "LOCKED"
 
 class UserRole(str, Enum):
     admin = "admin"

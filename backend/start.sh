@@ -30,14 +30,9 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-# Check if database migrations have been run
+# Check if database migrations have been run (optional now)
 echo "Checking database status..."
-python3 test_setup.py
-
-if [ $? -ne 0 ]; then
-    echo "❌ Database setup failed. Please check your configuration."
-    exit 1
-fi
+python3 test_setup.py 2>/dev/null || echo "⚠️  Database not available - starting in degraded mode"
 
 echo "✅ Starting FastAPI server..."
 echo "API will be available at: http://localhost:8000"

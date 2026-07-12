@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from secrets import token_urlsafe
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.schemas.auth import (
@@ -47,9 +50,10 @@ async def register(
             detail=str(e)
         )
     except Exception as e:
+        logger.exception(f"Registration error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during registration"
+            detail=f"An error occurred during registration: {str(e)}"
         )
 
 @router.post("/login", response_model=LoginResponse)
