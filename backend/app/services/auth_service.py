@@ -393,6 +393,7 @@ class AuthService:
 
         return {
             "id": str(user.id),
+            "email": user.email,
             "full_name": user.full_name,
             "role_id": user.role_id,
             "role_name": user.role.name if user.role else None,

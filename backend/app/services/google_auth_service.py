@@ -99,8 +99,8 @@ class GoogleAuthService:
                 # Update existing user's info
                 user.full_name = name
                 user.profile_picture = picture
-                if user.status == UserStatus.INACTIVE:
-                    user.status = UserStatus.ACTIVE
+                if user.status == UserStatus.inactive:
+                    user.status = UserStatus.active
                 await self.db.commit()
                 return user, None
 
@@ -128,7 +128,7 @@ class GoogleAuthService:
                 full_name=name,
                 google_id=google_id,
                 provider="google",
-                status=UserStatus.ACTIVE,  # Google users are active immediately
+                status=UserStatus.active,  # Google users are active immediately
                 role_id=4,  # Default to employee role
                 password_hash=None  # No password for Google users
             )
