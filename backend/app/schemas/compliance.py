@@ -37,7 +37,7 @@ class ComplianceIssueBase(BaseModel):
     category: ComplianceIssueCategory
     severity: ComplianceIssueSeverity = ComplianceIssueSeverity.medium
     due_date: datetime
-    risk_level: Optional[str] = Field(None, regex="^(high|medium|low)$")
+    risk_level: Optional[str] = Field(None, pattern="^(high|medium|low)$")
     impact_description: Optional[str] = None
     affected_stakeholders: Optional[List[str]] = None
     source: Optional[str] = Field(None, max_length=50)
@@ -59,7 +59,7 @@ class ComplianceIssueUpdate(BaseModel):
     owner_id: Optional[UUID] = None
     department_id: Optional[UUID] = None
     due_date: Optional[datetime] = None
-    risk_level: Optional[str] = Field(None, regex="^(high|medium|low)$")
+    risk_level: Optional[str] = Field(None, pattern="^(high|medium|low)$")
     impact_description: Optional[str] = None
     affected_stakeholders: Optional[List[str]] = None
     priority: Optional[int] = Field(None, ge=1, le=5)
@@ -101,7 +101,7 @@ class ComplianceIssueResponse(ComplianceIssueBase):
 # Compliance Issue Comment Schemas
 class ComplianceIssueCommentBase(BaseModel):
     comment: str = Field(..., min_length=1)
-    comment_type: str = Field(default="update", regex="^(update|question|concern|resolution)$")
+    comment_type: str = Field(default="update", pattern="^(update|question|concern|resolution)$")
     is_internal: bool = False
 
 class ComplianceIssueCommentCreate(ComplianceIssueCommentBase):
@@ -131,7 +131,7 @@ class ComplianceIssueAttachmentBase(BaseModel):
     file_type: str = Field(..., min_length=1, max_length=100)
     file_extension: str = Field(..., min_length=1, max_length=10)
     description: Optional[str] = None
-    attachment_type: str = Field(default="evidence", regex="^(evidence|report|correspondence|other)$")
+    attachment_type: str = Field(default="evidence", pattern="^(evidence|report|correspondence|other)$")
 
 class ComplianceIssueAttachmentCreate(ComplianceIssueAttachmentBase):
     compliance_issue_id: UUID

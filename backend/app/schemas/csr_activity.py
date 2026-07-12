@@ -32,8 +32,8 @@ class CSRActivityBase(BaseModel):
     beneficiaries_count: Optional[int] = Field(None, ge=0)
     amount_donated: Optional[int] = Field(None, ge=0)
     carbon_impact_kg: Optional[int] = Field(None, ge=0)
-    points_earned: int = Field(..., ge=0, default=0)
-    xp_earned: int = Field(..., ge=0, default=0)
+    points_earned: int = Field(default=0, ge=0)
+    xp_earned: int = Field(default=0, ge=0)
     evidence_required: bool = False
     challenge_id: Optional[UUID] = None
 

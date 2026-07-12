@@ -34,13 +34,13 @@ class BadgeBase(BaseModel):
     unlock_threshold: int = Field(..., ge=0)
     unlock_rule: Optional[Dict[str, Any]] = None
     auto_award: bool = False
-    points_reward: int = Field(..., ge=0, default=0)
-    xp_reward: int = Field(..., ge=0, default=0)
+    points_reward: int = Field(default=0, ge=0)
+    xp_reward: int = Field(default=0, ge=0)
     is_active: bool = True
     is_limited: bool = False
     max_awards: Optional[int] = Field(None, ge=1)
     display_order: int = 0
-    rarity: str = Field(default="common", regex="^(common|rare|epic|legendary)$")
+    rarity: str = Field(default="common", pattern="^(common|rare|epic|legendary)$")
     requirements: Optional[str] = None
 
 class BadgeCreate(BadgeBase):
@@ -61,7 +61,7 @@ class BadgeUpdate(BaseModel):
     is_limited: Optional[bool] = None
     max_awards: Optional[int] = Field(None, ge=1)
     display_order: Optional[int] = None
-    rarity: Optional[str] = Field(None, regex="^(common|rare|epic|legendary)$")
+    rarity: Optional[str] = Field(None, pattern="^(common|rare|epic|legendary)$")
     requirements: Optional[str] = None
 
 class BadgeResponse(BadgeBase):
@@ -78,7 +78,7 @@ class BadgeUnlockRuleBase(BaseModel):
     rule_name: str = Field(..., min_length=1, max_length=100)
     metric_type: str = Field(..., min_length=1, max_length=50)
     threshold_value: int = Field(..., ge=0)
-    operator: str = Field(default=">=", regex="^(>=|>|=|<=|<)$")
+    operator: str = Field(default=">=", pattern="^(>=|>|=|<=|<)$")
     conditions: Optional[Dict[str, Any]] = None
     time_period_days: Optional[int] = Field(None, ge=1)
     is_active: bool = True
@@ -91,7 +91,7 @@ class BadgeUnlockRuleUpdate(BaseModel):
     rule_name: Optional[str] = Field(None, min_length=1, max_length=100)
     metric_type: Optional[str] = Field(None, min_length=1, max_length=50)
     threshold_value: Optional[int] = Field(None, ge=0)
-    operator: Optional[str] = Field(None, regex="^(>=|>|=|<=|<)$")
+    operator: Optional[str] = Field(None, pattern="^(>=|>|=|<=|<)$")
     conditions: Optional[Dict[str, Any]] = None
     time_period_days: Optional[int] = Field(None, ge=1)
     is_active: Optional[bool] = None

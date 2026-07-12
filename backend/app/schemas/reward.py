@@ -103,7 +103,7 @@ class UserPointsResponse(UserPointsBase):
 # Points Transaction Schemas
 class PointsTransactionBase(BaseModel):
     points: int = Field(..., description="Can be positive (earned) or negative (redeemed)")
-    xp: int = Field(..., ge=0, default=0)
+    xp: int = Field(default=0, ge=0)
     transaction_type: str = Field(..., description="earned, redeemed, bonus, penalty")
     source: Optional[str] = Field(None, max_length=100, description="Source of points: challenge, csr, training, manual, etc.")
     source_id: Optional[UUID] = Field(None, description="Reference to source entity")
