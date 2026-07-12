@@ -4,7 +4,12 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/odoo_db"
+    DB_HOST: Optional[str] = None
+    DB_PORT: Optional[int] = 5432
+    DB_USER: Optional[str] = None
+    DB_PASSWORD: Optional[str] = None
+    DB_NAME: Optional[str] = None
+    DATABASE_URL: str = "postgresql://user:password@localhost/odoo_db"
 
     # JWT
     SECRET_KEY: str = "your-secret-key-change-in-production-use-environment-variable"

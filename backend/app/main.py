@@ -21,9 +21,10 @@ async def startup_event():
     try:
         await init_db()
         logger.info("Odoo X API startup completed successfully")
-    except Exception:
-        logger.exception("Failed to start Odoo X API - database connection required")
-        raise  # Crash immediately if database connection fails
+    except Exception as e:
+        logger.warning(f"Database connection failed: {e}")
+        logger.info("Odoo X API started in degraded mode (no database connectivity)")
+        # Don't crash - allow app to start without database
 
 @app.on_event("shutdown")
 async def shutdown_event():

@@ -1,19 +1,17 @@
-import asyncio
-import asyncpg
-import ssl
+import psycopg
 
-async def main():
-    conn = await asyncpg.connect(
-        host="40.80.81.186",        # <-- Force IPv4
-        port=5432,
-        user="neondb_owner",
-        password="YOUR_PASSWORD",
-        database="oodo2026",
-        ssl=ssl.create_default_context(),
-        timeout=60,
-    )
+conn = psycopg.connect(
+    host="zensphere-db.postgres.database.azure.com",
+    port=5432,
+    dbname="oodo2026",
+    user="neondb_owner",
+    password="RANdom-#1234",
+    sslmode="require",
+)
 
-    print(await conn.fetchval("SELECT version();"))
-    await conn.close()
+cur = conn.cursor()
+cur.execute("SELECT version();")
+print(cur.fetchone())
 
-asyncio.run(main())
+cur.close()
+conn.close()
