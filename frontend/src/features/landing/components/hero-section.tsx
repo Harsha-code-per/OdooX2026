@@ -1,92 +1,211 @@
 "use client";
 
 import gsap from "gsap";
-import { ArrowRight, ChevronDown, Leaf, Shield, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Leaf,
+  Shield,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { HeroDashboardPreview } from "./hero-dashboard-preview";
+import { ROUTES } from "@/constants/routes";
+
+const HERO_MOTION = {
+  badgeDuration: 0.45,
+  signalDuration: 0.42,
+  connectorDuration: 0.38,
+  transitionDuration: 0.7,
+  revealDuration: 0.72,
+  staggerFast: 0.12,
+} as const;
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check if user prefers reduced motion
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (prefersReducedMotion) {
-      // Just fade in everything instantly or let styles handle it
+      gsap.set(".hero-prelude", { autoAlpha: 0, pointerEvents: "none" });
+      gsap.set(
+        [
+          ".hero-final",
+          ".hero-headline",
+          ".hero-subtitle",
+          ".hero-cta",
+          ".hero-scroll",
+          ".animate-hero-highlight",
+        ],
+        {
+          autoAlpha: 1,
+          y: 0,
+        },
+      );
       return;
     }
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
-      tl.from(".animate-hero-badge", {
-        y: -20,
-        opacity: 0,
-        duration: 0.6,
-      })
-        .from(
-          ".animate-hero-title",
-          {
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-          },
-          "-=0.4",
+      tl.fromTo(
+        ".animate-stage-badge",
+        { y: -10, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, duration: HERO_MOTION.badgeDuration },
+      )
+        .fromTo(
+          ".animate-stage-prep",
+          { y: 10, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: HERO_MOTION.badgeDuration },
+          "-=0.2",
         )
-        .from(
-          ".animate-hero-text",
+        .fromTo(
+          ".animate-signal-environmental",
+          { y: 14, autoAlpha: 0 },
           {
-            y: 20,
-            opacity: 0,
-            duration: 0.8,
+            y: 0,
+            autoAlpha: 1,
+            duration: HERO_MOTION.signalDuration,
           },
-          "-=0.6",
         )
-        .from(
-          ".animate-hero-cta",
+        .fromTo(
+          ".animate-signal-social",
+          { y: 14, autoAlpha: 0 },
           {
-            y: 15,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.1,
+            y: 0,
+            autoAlpha: 1,
+            duration: HERO_MOTION.signalDuration,
+          },
+          "+=0.06",
+        )
+        .fromTo(
+          ".animate-signal-governance",
+          { y: 14, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: HERO_MOTION.signalDuration,
+          },
+          "+=0.06",
+        )
+        .fromTo(
+          [".animate-node-env", ".animate-node-social"],
+          { scale: 0, autoAlpha: 0 },
+          {
+            scale: 1,
+            autoAlpha: 1,
+            duration: 0.25,
+            stagger: HERO_MOTION.staggerFast,
+          },
+          "+=0.08",
+        );
+
+      tl.fromTo(
+        ".animate-connector-env",
+        { scaleY: 0, autoAlpha: 0 },
+        {
+          scaleY: 1,
+          autoAlpha: 1,
+          transformOrigin: "top center",
+          duration: HERO_MOTION.connectorDuration,
+        },
+      )
+        .fromTo(
+          ".animate-connector-social",
+          { scaleY: 0, autoAlpha: 0 },
+          {
+            scaleY: 1,
+            autoAlpha: 1,
+            transformOrigin: "top center",
+            duration: HERO_MOTION.connectorDuration,
+          },
+          "-=0.12",
+        )
+        .fromTo(
+          ".animate-stage-merge",
+          { y: 8, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.35,
+          },
+          "-=0.1",
+        )
+        .to(".hero-prelude", {
+          y: -10,
+          autoAlpha: 0,
+          duration: HERO_MOTION.transitionDuration,
+          ease: "power3.inOut",
+          pointerEvents: "none",
+        })
+        .fromTo(
+          ".hero-final",
+          { y: 14, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: HERO_MOTION.revealDuration,
+            ease: "power3.out",
           },
           "-=0.5",
         )
-        .from(
-          ".animate-hero-preview",
-          {
-            y: 40,
-            opacity: 0,
-            duration: 1.0,
-          },
-          "-=0.4",
+        .fromTo(
+          ".hero-headline",
+          { y: 14, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" },
+          "-=0.5",
         )
-        .from(
-          ".animate-hero-card",
-          {
-            scale: 0.9,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.15,
-          },
-          "-=0.6",
+        .fromTo(
+          ".animate-hero-highlight",
+          { autoAlpha: 0, y: 8 },
+          { autoAlpha: 1, y: 0, duration: 0.45 },
+          "-=0.35",
         )
-        .from(
-          ".animate-hero-scroll",
+        .fromTo(
+          ".hero-subtitle",
+          { y: 14, autoAlpha: 0 },
           {
-            opacity: 0,
-            y: -10,
-            duration: 0.6,
-            repeat: -1,
-            yoyo: true,
-            ease: "power1.inOut",
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.45,
           },
-          "-=0.2",
+          "-=0.18",
+        )
+        .fromTo(
+          ".hero-cta",
+          { y: 10, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            stagger: HERO_MOTION.staggerFast,
+            duration: 0.4,
+          },
+          "-=0.15",
+        )
+        .fromTo(
+          ".hero-scroll",
+          { y: -8, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.35,
+          },
+          "-=0.1",
         );
+
+      tl.add(() => {
+        gsap.to(".animate-hero-scroll-icon", {
+          y: 6,
+          duration: 0.9,
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+        });
+      });
     }, containerRef);
 
     return () => ctx.revert();
@@ -95,122 +214,128 @@ export function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-dvh flex flex-col items-center justify-center pt-28 pb-16 overflow-hidden bg-background"
+      className="relative flex min-h-[94dvh] flex-col items-center justify-center overflow-hidden bg-background pb-20 pt-28 md:min-h-[96dvh]"
       aria-label="Hero Introduction"
     >
-      {/* Premium Background Grid and Lighting Effects */}
       <div
-        className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, var(--color-border) 1px, transparent 1px), linear-gradient(to bottom, var(--color-border) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
+        className="absolute inset-0 z-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:44px_44px] opacity-[0.03] dark:opacity-[0.05]"
         aria-hidden="true"
       />
 
-      {/* Lighting orbs */}
       <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[450px] rounded-full bg-primary/10 dark:bg-primary/5 blur-3xl z-0"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute top-1/3 left-1/4 h-[300px] w-[300px] rounded-full bg-blue-500/5 dark:bg-blue-500/3 blur-3xl z-0"
+        className="absolute left-1/2 top-1/3 z-0 h-[340px] w-[340px] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl md:h-[420px] md:w-[420px]"
         aria-hidden="true"
       />
 
-      {/* Main Content Area */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 flex flex-col items-center text-center space-y-8">
-        {/* Announcement Badge */}
-        <div className="animate-hero-badge opacity-100">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border px-3.5 py-1 text-xs font-medium text-foreground bg-card shadow-xs">
-            <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
-            EcoSphere 1.0 has launched
-          </span>
-        </div>
-
-        {/* Headline */}
-        <h1 className="animate-hero-title opacity-100 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground max-w-4xl leading-[1.1]">
-          Enterprise ESG Intelligence for{" "}
-          <span className="bg-gradient-to-r from-primary via-emerald-400 to-primary bg-[size:200%_auto] animate-shimmer bg-clip-text text-transparent">
-            Sustainable Organizations
-          </span>
-        </h1>
-
-        {/* Supporting paragraph */}
-        <p className="animate-hero-text opacity-100 text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Centralize carbon accounting, track CSR impact, and manage regulatory
-          compliance within a unified, premium software architecture.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-          <Link
-            href="/register"
-            className="animate-hero-cta opacity-100 w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/95 hover:shadow-primary/30 transition-all focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            Get Started
-            <ArrowRight size={16} className="ml-2" />
-          </Link>
-          <Link
-            href="/login"
-            className="animate-hero-cta opacity-100 w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg border border-input bg-background px-8 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            Explore Platform
-          </Link>
-        </div>
-
-        {/* Preview Wrapper with Floating ESG widgets */}
-        <div className="relative w-full max-w-5xl mt-12 animate-hero-preview opacity-100">
-          {/* Floating Widget 1: Carbon reduction */}
-          <div className="animate-hero-card opacity-100 hidden xl:flex absolute -left-20 top-20 z-20 p-3.5 rounded-xl border border-border bg-card/90 backdrop-blur-md shadow-lg shadow-success/5 dark:shadow-success/10 items-center gap-3 w-48">
-            <div className="h-8 w-8 rounded-lg bg-success/10 flex items-center justify-center text-success">
-              <Leaf size={16} />
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-muted-foreground font-semibold block uppercase">
-                Carbon Savings
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-6 text-center">
+        <div className="relative flex min-h-[36rem] w-full items-center justify-center md:min-h-[38rem]">
+          {/* Stage 1-3: Quiet setup and ESG signal assembly */}
+          <div className="hero-prelude absolute inset-x-0 top-0 mx-auto flex w-full max-w-2xl flex-col items-center">
+            <div className="animate-stage-badge opacity-0">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1 text-xs font-medium text-foreground shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-primary" />
+                EcoSphere 1.0 has launched
               </span>
-              <span className="text-sm font-bold">+12.4% offset</span>
             </div>
+
+            <p className="animate-stage-prep mt-6 text-2xl font-medium tracking-tight text-foreground/90 opacity-0 md:text-3xl">
+              Collecting ESG Signals...
+            </p>
+
+            <div className="mt-10 flex w-full max-w-md flex-col items-center">
+              <div className="animate-signal-environmental flex w-full items-center justify-between rounded-xl border border-border bg-card/90 px-4 py-3 opacity-0 backdrop-blur-sm">
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground md:text-base">
+                  <Leaf size={16} className="text-success" />
+                  Environmental
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-success">
+                  <Check size={14} />
+                  Verified
+                </span>
+              </div>
+
+              <div className="mt-2 flex flex-col items-center">
+                <span className="animate-node-env h-1.5 w-1.5 rounded-full bg-success/80 opacity-0" />
+                <span className="animate-connector-env mt-1 block h-10 w-px origin-top scale-y-0 bg-gradient-to-b from-success/70 to-info/70 opacity-0" />
+              </div>
+
+              <div className="animate-signal-social flex w-full items-center justify-between rounded-xl border border-border bg-card/90 px-4 py-3 opacity-0 backdrop-blur-sm">
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground md:text-base">
+                  <Users size={16} className="text-info" />
+                  Social
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-info">
+                  <Check size={14} />
+                  Verified
+                </span>
+              </div>
+
+              <div className="mt-2 flex flex-col items-center">
+                <span className="animate-node-social h-1.5 w-1.5 rounded-full bg-info/80 opacity-0" />
+                <span className="animate-connector-social mt-1 block h-10 w-px origin-top scale-y-0 bg-gradient-to-b from-info/70 to-warning/70 opacity-0" />
+              </div>
+
+              <div className="animate-signal-governance flex w-full items-center justify-between rounded-xl border border-border bg-card/90 px-4 py-3 opacity-0 backdrop-blur-sm">
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground md:text-base">
+                  <Shield size={16} className="text-warning" />
+                  Governance
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-warning">
+                  <Check size={14} />
+                  Verified
+                </span>
+              </div>
+            </div>
+
+            <p className="animate-stage-merge mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground opacity-0">
+              Building connected intelligence
+            </p>
           </div>
 
-          {/* Floating Widget 2: Governance Compliance */}
-          <div className="animate-hero-card opacity-100 hidden xl:flex absolute -right-20 top-40 z-20 p-3.5 rounded-xl border border-border bg-card/90 backdrop-blur-md shadow-lg shadow-primary/5 dark:shadow-primary/10 items-center gap-3 w-48">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <Shield size={16} />
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-muted-foreground font-semibold block uppercase">
-                Compliance
-              </span>
-              <span className="text-sm font-bold">94.8% Score</span>
+          {/* Stage 4-5: Final messaging and conversion */}
+          <div className="hero-final absolute inset-0 flex items-center justify-center px-6 opacity-0">
+            <div className="w-full max-w-5xl space-y-8 text-center md:space-y-10">
+              <h1 className="hero-headline mx-auto max-w-5xl text-4xl font-bold leading-[1.03] tracking-tight text-foreground opacity-0 sm:text-5xl md:text-6xl lg:text-7xl">
+                Enterprise ESG Intelligence for{" "}
+                <span className="animate-hero-highlight inline-block bg-gradient-to-r from-success via-info to-warning bg-clip-text text-transparent opacity-0">
+                  Sustainable Organizations
+                </span>
+              </h1>
+
+              <p className="hero-subtitle mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground opacity-0 sm:text-lg md:text-xl">
+                EcoSphere transforms raw environmental, social, and governance
+                signals into one intelligent operating layer for enterprise
+                teams.
+              </p>
+
+              <div className="mx-auto flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link
+                  href={ROUTES.REGISTER}
+                  className="hero-cta inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary px-8 text-sm font-medium text-primary-foreground opacity-0 shadow-lg shadow-primary/20 transition-all hover:bg-primary/95 hover:shadow-primary/30 focus-visible:outline-2 focus-visible:outline-ring sm:w-auto"
+                >
+                  Get Started
+                  <ArrowRight size={16} className="ml-2" />
+                </Link>
+                <Link
+                  href="/#platform"
+                  className="hero-cta inline-flex h-11 w-full items-center justify-center rounded-lg border border-input bg-background px-8 text-sm font-medium opacity-0 transition-all hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring sm:w-auto"
+                >
+                  Explore Platform
+                </Link>
+              </div>
+
+              <Link
+                href="/#platform"
+                className="hero-scroll inline-flex items-center justify-center rounded-md px-2 py-1 opacity-0 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                aria-label="Scroll to platform reveal"
+              >
+                <ChevronDown
+                  size={24}
+                  className="animate-hero-scroll-icon text-muted-foreground/60"
+                />
+              </Link>
             </div>
           </div>
-
-          {/* Floating Widget 3: Social CSR */}
-          <div className="animate-hero-card opacity-100 hidden xl:flex absolute -left-12 bottom-20 z-20 p-3.5 rounded-xl border border-border bg-card/90 backdrop-blur-md shadow-lg shadow-info/5 dark:shadow-info/10 items-center gap-3 w-48">
-            <div className="h-8 w-8 rounded-lg bg-info/10 flex items-center justify-center text-info">
-              <Users size={16} />
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-muted-foreground font-semibold block uppercase">
-                Participation
-              </span>
-              <span className="text-sm font-bold">145 Active</span>
-            </div>
-          </div>
-
-          {/* Dashboard static mockup preview */}
-          <HeroDashboardPreview />
-        </div>
-
-        {/* Scroll Indicator */}
-        <div
-          className="animate-hero-scroll opacity-100 pt-8"
-          aria-hidden="true"
-        >
-          <ChevronDown size={24} className="text-muted-foreground/60" />
         </div>
       </div>
     </section>

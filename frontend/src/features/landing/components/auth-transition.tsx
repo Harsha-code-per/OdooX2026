@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { ROUTES } from "@/constants/routes";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -28,27 +29,21 @@ export function AuthTransition() {
         },
       });
 
-      tl.from(".animate-cta-title", {
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-      })
-        .from(
+      tl.fromTo(
+        ".animate-cta-title",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+      )
+        .fromTo(
           ".animate-cta-text",
-          {
-            y: 15,
-            opacity: 0,
-            duration: 0.6,
-          },
+          { y: 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6 },
           "-=0.3",
         )
-        .from(
+        .fromTo(
           ".animate-cta-buttons",
-          {
-            y: 10,
-            opacity: 0,
-            duration: 0.5,
-          },
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5 },
           "-=0.3",
         );
     }, containerRef);
@@ -84,17 +79,17 @@ export function AuthTransition() {
         {/* CTA Buttons */}
         <div className="animate-cta-buttons opacity-100 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
-            href="/register"
+            href={ROUTES.REGISTER}
             className="w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/95 hover:shadow-primary/30 transition-all focus-visible:outline-2 focus-visible:outline-ring"
           >
             Get Started
             <ArrowRight size={16} className="ml-2" />
           </Link>
           <Link
-            href="/login"
+            href="/#contact"
             className="w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg border border-input bg-background px-8 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all focus-visible:outline-2 focus-visible:outline-ring"
           >
-            Sign In
+            Book Demo
           </Link>
         </div>
       </div>

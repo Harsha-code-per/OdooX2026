@@ -3,40 +3,45 @@
 import { motion } from "framer-motion";
 import { Leaf } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type React from "react";
-import { HeroDashboardPreview } from "@/features/landing/components/hero-dashboard-preview";
+import { ROUTES } from "@/constants/routes";
+import { AuthVisualStage } from "@/features/auth/components/auth-visual-stage";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const visualMode =
+    pathname === ROUTES.LOGIN
+      ? "login"
+      : pathname === ROUTES.REGISTER
+        ? "register"
+        : "default";
+
   return (
-    <div className="relative min-h-dvh flex bg-background overflow-hidden selection:bg-primary/20">
-      {/* BACKGROUND DECORATIONS (Radial Blurs and Grid) */}
+    <div className="relative min-h-dvh overflow-hidden bg-background selection:bg-primary/20">
+      {/* Background grid and lighting */}
       <div
-        className="absolute inset-0 z-0 opacity-[0.02] dark:opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, var(--color-border) 1px, transparent 1px), linear-gradient(to bottom, var(--color-border) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div
-        className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl pointer-events-none z-0"
+        className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:34px_34px] opacity-[0.02] dark:opacity-[0.04]"
         aria-hidden="true"
       />
       <div
-        className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-3xl pointer-events-none z-0"
+        className="pointer-events-none absolute right-0 top-0 z-0 h-[520px] w-[520px] rounded-full bg-primary/6 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 z-0 h-[420px] w-[420px] rounded-full bg-blue-500/6 blur-3xl"
         aria-hidden="true"
       />
 
-      {/* LEFT COLUMN: Premium Platform Preview (Desktop Only) */}
-      <div className="hidden lg:flex flex-1 flex-col justify-between p-12 bg-muted/20 border-r border-border/80 relative z-10 overflow-hidden">
-        {/* Brand Header */}
+      {/* Brand */}
+      <header className="absolute left-6 top-6 z-30 md:left-12 md:top-10">
         <div className="animate-fade-in text-left">
           <Link
-            href="/"
+            href={ROUTES.HOME}
             className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-ring rounded-lg w-fit"
           >
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/20">
@@ -47,43 +52,56 @@ export default function AuthLayout({
             </span>
           </Link>
         </div>
+      </header>
 
-        {/* Dashboard 3D preview illustration area */}
-        <div className="relative w-full max-w-xl mx-auto flex items-center justify-center my-auto">
-          {/* Subtle gradient backdrop behind preview */}
-          <div className="absolute -inset-4 bg-gradient-to-tr from-primary/10 via-emerald-500/5 to-transparent rounded-2xl blur-2xl opacity-70" />
-
-          <motion.div
-            initial={{ opacity: 0, y: 30, rotateY: -10, rotateX: 6 }}
-            animate={{ opacity: 1, y: 0, rotateY: -12, rotateX: 8 }}
-            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full transform shadow-2xl scale-[0.88] hover:scale-[0.92] transition-transform duration-700 pointer-events-none relative z-10"
-            style={{ transformStyle: "preserve-3d" }}
+      {/* Desktop: full-viewport stage with right-corner auth card */}
+      <div className="relative z-10 mx-auto hidden min-h-dvh w-full max-w-[1600px] px-10 pb-10 pt-24 lg:block">
+        <div className="relative flex min-h-[calc(100dvh-8.5rem)] items-center">
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+            className="relative h-full w-full overflow-hidden"
+            aria-label="EcoSphere authentication experience"
           >
-            {/* Visual cover layer adding subtle reflection */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 dark:to-white/2 pointer-events-none rounded-2xl z-20 mix-blend-overlay" />
-            <HeroDashboardPreview />
-          </motion.div>
+            <div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/10 via-transparent to-background/45"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-background/10"
+              aria-hidden="true"
+            />
+            <div className="h-full pr-[28rem] xl:pr-[30rem] 2xl:pr-[32rem]">
+              <AuthVisualStage mode={visualMode} />
+            </div>
+          </motion.section>
+
+          <aside className="pointer-events-none absolute right-0 top-0 z-20 flex h-full w-full justify-end">
+            <div className="pointer-events-auto w-full max-w-[430px] pt-4">
+              <main className="max-h-[calc(100dvh-10rem)] overflow-y-auto pr-1">
+                {children}
+              </main>
+            </div>
+          </aside>
         </div>
 
-        {/* Bottom Tagline */}
-        <div className="text-left space-y-1.5 animate-fade-in">
+        <div className="mt-5 animate-fade-in space-y-1.5 pl-1 text-left">
           <h2 className="text-sm font-semibold text-foreground">
-            Complete ESG Visibility
+            Enterprise-ready onboarding
           </h2>
           <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-            Enter the central intelligence platform processing data streams
-            across environment, social and governance metrics.
+            Sign in securely or create a new workspace to activate connected ESG
+            operations across your organization.
           </p>
         </div>
       </div>
 
-      {/* RIGHT COLUMN: Centered Forms Container */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10 w-full max-w-lg mx-auto lg:max-w-none">
-        {/* Mobile Header (Hidden on Desktop) */}
-        <div className="lg:hidden flex items-center justify-center mb-8">
+      {/* Mobile / Tablet: centered form-only layout */}
+      <div className="relative z-20 flex min-h-dvh items-center justify-center px-5 py-24 lg:hidden">
+        <div className="w-full max-w-md">
           <Link
-            href="/"
+            href={ROUTES.HOME}
             className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-ring rounded-lg"
           >
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/20">
@@ -93,12 +111,8 @@ export default function AuthLayout({
               EcoSphere
             </span>
           </Link>
+          <main className="mt-8">{children}</main>
         </div>
-
-        {/* Form area */}
-        <main className="w-full max-w-[400px] flex flex-col justify-center">
-          {children}
-        </main>
       </div>
     </div>
   );

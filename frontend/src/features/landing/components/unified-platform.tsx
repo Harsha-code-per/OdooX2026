@@ -36,39 +36,32 @@ export function UnifiedPlatform() {
         },
       });
 
-      tl.from(".animate-platform-header", {
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-      })
-        .from(
+      tl.fromTo(
+        ".animate-platform-header",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+      )
+        .fromTo(
           ".animate-platform-source",
-          {
-            x: -30,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.15,
-          },
+          { x: -30, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.6, stagger: 0.15 },
           "-=0.3",
         )
-        .from(
+        .fromTo(
           ".animate-platform-connector",
+          { scaleX: 0, opacity: 0 },
           {
-            scaleX: 0,
-            opacity: 0,
+            scaleX: 1,
+            opacity: 1,
             transformOrigin: "left center",
             duration: 0.6,
           },
           "-=0.3",
         )
-        .from(
+        .fromTo(
           ".animate-platform-hub",
-          {
-            scale: 0.95,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.2,
-          },
+          { scale: 0.95, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.8, stagger: 0.2 },
           "-=0.4",
         );
     }, containerRef);
@@ -79,7 +72,8 @@ export function UnifiedPlatform() {
   return (
     <section
       ref={containerRef}
-      className="py-24 bg-background relative z-10 overflow-hidden"
+      id="platform"
+      className="py-24 bg-background relative z-10 overflow-hidden scroll-mt-24"
       aria-labelledby="unified-platform-title"
     >
       <div className="max-w-7xl mx-auto px-6 space-y-16">

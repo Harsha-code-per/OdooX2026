@@ -2,37 +2,53 @@ import { Leaf } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 
+type FooterActiveLink = {
+  label: string;
+  href: string;
+};
+
+type FooterComingSoonLink = {
+  label: string;
+  state: "coming-soon";
+};
+
+type FooterLink = FooterActiveLink | FooterComingSoonLink;
+
+function isActiveLink(link: FooterLink): link is FooterActiveLink {
+  return "href" in link;
+}
+
 const FOOTER_SECTIONS = [
   {
     title: "Product",
     links: [
-      { label: "Features", href: ROUTES.FEATURES },
-      { label: "Security", href: "/security" },
-      { label: "Roadmap", href: "/roadmap" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { label: "Documentation", href: "/docs" },
-      { label: "API Reference", href: "/api" },
-      { label: "Support", href: "/support" },
+      { label: "Platform", href: "/#platform" },
+      { label: "Solutions", href: "/#solutions" },
+      { label: "Security", href: "/#security" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About Us", href: ROUTES.ABOUT },
-      { label: "Careers", href: "/careers" },
-      { label: "Contact", href: ROUTES.CONTACT },
+      { label: "About", href: "/#about" },
+      { label: "Contact", href: "/#contact" },
+      { label: "Careers", state: "coming-soon" as const },
+    ],
+  },
+  {
+    title: "Access",
+    links: [
+      { label: "Get Started", href: ROUTES.REGISTER },
+      { label: "Sign In", href: ROUTES.LOGIN },
+      { label: "Book Demo", href: "/#contact" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-      { label: "Cookie Settings", href: "/cookies" },
+      { label: "Privacy Policy", state: "coming-soon" as const },
+      { label: "Terms of Service", state: "coming-soon" as const },
+      { label: "Cookie Settings", state: "coming-soon" as const },
     ],
   },
 ];
@@ -72,12 +88,24 @@ export function MarketingFooter() {
                 <ul className="space-y-2.5 text-xs text-muted-foreground">
                   {section.links.map((link) => (
                     <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded"
-                      >
-                        {link.label}
-                      </Link>
+                      {isActiveLink(link) ? (
+                        <Link
+                          href={link.href}
+                          className="hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <span
+                          className="inline-flex cursor-not-allowed items-center gap-1 text-muted-foreground/70"
+                          aria-disabled="true"
+                        >
+                          {link.label}
+                          <span className="text-[10px] uppercase tracking-wide">
+                            Coming Soon
+                          </span>
+                        </span>
+                      )}
                     </li>
                   ))}
                 </ul>

@@ -58,17 +58,21 @@ export function EsgPillars() {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      gsap.from(".animate-pillar-card", {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%",
+      gsap.fromTo(
+        ".animate-pillar-card",
+        { y: 40, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+          },
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.2,
+          ease: "power2.out",
         },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power2.out",
-      });
+      );
     }, containerRef);
 
     return () => ctx.revert();
@@ -77,7 +81,8 @@ export function EsgPillars() {
   return (
     <section
       ref={containerRef}
-      className="py-24 bg-card/30 border-y border-border overflow-hidden relative z-10"
+      id="solutions"
+      className="py-24 bg-card/30 border-y border-border overflow-hidden relative z-10 scroll-mt-24"
       aria-labelledby="esg-pillars-title"
     >
       <div className="max-w-7xl mx-auto px-6 space-y-16">

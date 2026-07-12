@@ -1,12 +1,12 @@
 import { MarketingFooter } from "@/components/layout/marketing-footer";
 import { MarketingHeader } from "@/components/layout/marketing-header";
+import { AboutSection } from "@/features/landing/components/about-section";
 import { AuthTransition } from "@/features/landing/components/auth-transition";
+import { ContactSection } from "@/features/landing/components/contact-section";
 import { EnterpriseBenefits } from "@/features/landing/components/enterprise-benefits";
 import { EsgPillars } from "@/features/landing/components/esg-pillars";
 import { HeroSection } from "@/features/landing/components/hero-section";
-import { PlatformCapabilities } from "@/features/landing/components/platform-capabilities";
-import { StatisticsSection } from "@/features/landing/components/statistics-section";
-import { UnifiedPlatform } from "@/features/landing/components/unified-platform";
+import { ProductRevealSection } from "@/features/landing/components/product-reveal-section";
 
 /**
  * Root marketing/landing page.
@@ -21,11 +21,12 @@ export default function MarketingLandingPage() {
       {/* Main Section */}
       <main className="flex-1">
         <HeroSection />
+        <div className="h-20 bg-background md:h-32" aria-hidden="true" />
+        <ProductRevealSection />
         <EsgPillars />
-        <UnifiedPlatform />
-        <PlatformCapabilities />
         <EnterpriseBenefits />
-        <StatisticsSection />
+        <AboutSection />
+        <ContactSection />
         <AuthTransition />
       </main>
 

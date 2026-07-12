@@ -89,17 +89,21 @@ export function PlatformCapabilities() {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      gsap.from(".animate-capability-card", {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%",
+      gsap.fromTo(
+        ".animate-capability-card",
+        { y: 30, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+          },
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power2.out",
         },
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-      });
+      );
     }, containerRef);
 
     return () => ctx.revert();
@@ -108,7 +112,7 @@ export function PlatformCapabilities() {
   return (
     <section
       ref={containerRef}
-      className="py-24 bg-card/20 border-t border-border overflow-hidden relative z-10"
+      className="py-24 bg-card/20 border-t border-border overflow-hidden relative z-10 scroll-mt-24"
       aria-labelledby="capabilities-title"
     >
       <div className="max-w-7xl mx-auto px-6 space-y-16">

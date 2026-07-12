@@ -79,17 +79,21 @@ export function StatisticsSection() {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      gsap.from(".animate-stat-card", {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%",
+      gsap.fromTo(
+        ".animate-stat-card",
+        { y: 20, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+          },
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: "power2.out",
         },
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: "power2.out",
-      });
+      );
     }, containerRef);
 
     return () => ctx.revert();

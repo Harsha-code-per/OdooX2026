@@ -8,16 +8,17 @@ import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Platform", href: ROUTES.FEATURES },
-  { label: "Solutions", href: "/solutions" },
-  { label: "Security", href: "/security" },
-  { label: "About", href: ROUTES.ABOUT },
-  { label: "Contact", href: ROUTES.CONTACT },
+  { label: "Platform", href: "/#platform", targetId: "platform" },
+  { label: "Solutions", href: "/#solutions", targetId: "solutions" },
+  { label: "Security", href: "/#security", targetId: "security" },
+  { label: "About", href: "/#about", targetId: "about" },
+  { label: "Contact", href: "/#contact", targetId: "contact" },
 ];
 
 export function MarketingHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
     function handleScroll() {
@@ -25,6 +26,48 @@ export function MarketingHeader() {
     }
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const sectionIds = [
+      "platform",
+      "solutions",
+      "security",
+      "about",
+      "contact",
+    ];
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        }
+      },
+      {
+        rootMargin: "-30% 0px -50% 0px",
+        threshold: 0.1,
+      },
+    );
+
+    for (const el of elements) {
+      if (el) observer.observe(el);
+    }
+
+    return () => {
+      for (const el of elements) {
+        if (el) observer.unobserve(el);
+      }
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -55,28 +98,43 @@ export function MarketingHeader() {
           className="hidden md:flex items-center gap-6"
           aria-label="Main Navigation"
         >
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded-md px-1.5 py-0.5"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = activeSection === link.targetId;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={isActive ? "true" : undefined}
+                className={cn(
+                  "text-sm font-medium transition-colors duration-250 focus-visible:outline-2 focus-visible:outline-ring rounded-md px-1.5 py-0.5 relative group",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {link.label}
+                <span
+                  className={cn(
+                    "absolute bottom-0 left-1.5 right-1.5 h-[2px] bg-primary scale-x-0 origin-left transition-transform duration-250 ease-out",
+                    isActive ? "scale-x-100" : "group-hover:scale-x-50",
+                  )}
+                />
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Actions (Sign In, Get Started, Theme Toggle) */}
         <div className="hidden md:flex items-center gap-4">
           <ThemeToggle />
           <Link
-            href="/login"
+            href={ROUTES.LOGIN}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded-md px-3 py-1.5"
           >
             Sign In
           </Link>
           <Link
-            href="/register"
+            href={ROUTES.REGISTER}
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/95 transition-all shadow-md shadow-primary/10 hover:shadow-primary/20 focus-visible:outline-2 focus-visible:outline-ring"
           >
             Get Started
@@ -89,7 +147,7 @@ export function MarketingHeader() {
           <button
             type="button"
             onClick={() => setIsDrawerOpen(true)}
-            className="rounded-md p-1.5 text-foreground/60 hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring"
+            className="rounded-md p-1.5 text-foreground/60 hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Open menu"
           >
             <Menu size={20} />
@@ -126,7 +184,7 @@ export function MarketingHeader() {
                 <button
                   type="button"
                   onClick={() => setIsDrawerOpen(false)}
-                  className="rounded-md p-1.5 text-foreground/60 hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring"
+                  className="rounded-md p-1.5 text-foreground/60 hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label="Close menu"
                 >
                   <X size={20} />
@@ -137,31 +195,39 @@ export function MarketingHeader() {
                 className="flex flex-col gap-4"
                 aria-label="Mobile Navigation Drawer"
               >
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors py-1 block focus-visible:outline-2 focus-visible:outline-ring rounded-md"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const isActive = activeSection === link.targetId;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsDrawerOpen(false)}
+                      className={cn(
+                        "text-base font-medium transition-colors py-2 block focus-visible:outline-2 focus-visible:outline-ring rounded-md relative",
+                        isActive
+                          ? "text-primary font-semibold"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </nav>
             </div>
 
             <div className="space-y-4 pt-6 border-t border-border">
               <Link
-                href="/login"
+                href={ROUTES.LOGIN}
                 onClick={() => setIsDrawerOpen(false)}
-                className="flex h-10 w-full items-center justify-center rounded-lg border border-input text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                className="flex h-11 w-full items-center justify-center rounded-lg border border-input text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 Sign In
               </Link>
               <Link
-                href="/register"
+                href={ROUTES.REGISTER}
                 onClick={() => setIsDrawerOpen(false)}
-                className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-base font-medium text-primary-foreground hover:bg-primary/95 transition-all shadow-md shadow-primary/10"
+                className="flex h-11 w-full items-center justify-center rounded-lg bg-primary text-base font-medium text-primary-foreground hover:bg-primary/95 transition-all shadow-md shadow-primary/10"
               >
                 Get Started
               </Link>
