@@ -164,8 +164,11 @@ export const apiClient = {
     headers?: Record<string, string>,
   ) => request<T>("PUT", endpoint, body, headers),
 
-  delete: <T>(endpoint: string, headers?: Record<string, string>) =>
-    request<T>("DELETE", endpoint, undefined, headers),
+  delete: <T>(
+    endpoint: string,
+    body?: unknown,
+    headers?: Record<string, string>,
+  ) => request<T>("DELETE", endpoint, body, headers),
 };
 
 export { ApiClientError };

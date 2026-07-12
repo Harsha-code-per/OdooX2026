@@ -36,17 +36,9 @@ export type NotificationType =
   | "new_challenge"
   | "system_announcement";
 
-export type NotificationPriority =
-  | "low"
-  | "medium"
-  | "high"
-  | "urgent";
+export type NotificationPriority = "low" | "medium" | "high" | "urgent";
 
-export type NotificationStatus =
-  | "pending"
-  | "sent"
-  | "failed"
-  | "read";
+export type NotificationStatus = "pending" | "sent" | "failed" | "read";
 
 export interface NotificationPreference {
   id: string;

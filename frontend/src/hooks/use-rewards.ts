@@ -4,18 +4,12 @@
  * React hooks for reward redemption and points system
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rewardService } from "@/services/reward-service";
 import type {
-  Reward,
-  RewardRedemption,
-  UserPoints,
-  PointsTransaction,
-  LeaderboardEntry,
-  RedemptionSummary,
+  PointsTransactionCreate,
   RewardCreate,
   RewardRedemptionCreate,
-  PointsTransactionCreate,
 } from "@/types/reward";
 
 // Reward Catalog Hooks
@@ -88,7 +82,8 @@ export function useRedeemReward() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (redemption: RewardRedemptionCreate) => rewardService.redeemReward(redemption),
+    mutationFn: (redemption: RewardRedemptionCreate) =>
+      rewardService.redeemReward(redemption),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rewards"] });
       queryClient.invalidateQueries({ queryKey: ["rewards", "points"] });
@@ -111,8 +106,13 @@ export function useUpdateRedemptionStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ redemptionId, update }: { redemptionId: string; update: { status: string; notes?: string } }) =>
-      rewardService.updateRedemptionStatus(redemptionId, update),
+    mutationFn: ({
+      redemptionId,
+      update,
+    }: {
+      redemptionId: string;
+      update: { status: string; notes?: string };
+    }) => rewardService.updateRedemptionStatus(redemptionId, update),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rewards", "redemptions"] });
     },

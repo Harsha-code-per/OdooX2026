@@ -7,14 +7,14 @@
 import { apiClient } from "@/lib/api-client";
 import type {
   Badge,
-  BadgeUnlockRule,
-  UserBadge,
-  BadgeProgress,
-  BadgeUserStats,
   BadgeAutoAwardResult,
-  BadgeCreate,
-  BadgeUnlockRuleCreate,
   BadgeAwardRequest,
+  BadgeCreate,
+  BadgeProgress,
+  BadgeUnlockRule,
+  BadgeUnlockRuleCreate,
+  BadgeUserStats,
+  UserBadge,
 } from "@/types/badge";
 
 const BADGES_BASE = "/api/v1/badges";
@@ -29,9 +29,12 @@ export const badgeService = {
   }): Promise<Badge[]> {
     const queryParams = new URLSearchParams();
     if (params?.category) queryParams.append("category", params.category);
-    if (params?.is_active !== undefined) queryParams.append("is_active", params.is_active.toString());
-    if (params?.skip !== undefined) queryParams.append("skip", params.skip.toString());
-    if (params?.limit !== undefined) queryParams.append("limit", params.limit.toString());
+    if (params?.is_active !== undefined)
+      queryParams.append("is_active", params.is_active.toString());
+    if (params?.skip !== undefined)
+      queryParams.append("skip", params.skip.toString());
+    if (params?.limit !== undefined)
+      queryParams.append("limit", params.limit.toString());
 
     const endpoint = `${BADGES_BASE}${queryParams.toString() ? `?${queryParams}` : ""}`;
     return apiClient.get<Badge[]>(endpoint);
@@ -45,7 +48,10 @@ export const badgeService = {
     return apiClient.post<Badge>(`${BADGES_BASE}`, badge);
   },
 
-  async updateBadge(badgeId: string, badge: Partial<BadgeCreate>): Promise<Badge> {
+  async updateBadge(
+    badgeId: string,
+    badge: Partial<BadgeCreate>,
+  ): Promise<Badge> {
     return apiClient.put<Badge>(`${BADGES_BASE}/${badgeId}`, badge);
   },
 
@@ -58,19 +64,28 @@ export const badgeService = {
     return apiClient.get<BadgeUnlockRule[]>(`${BADGES_BASE}/${badgeId}/rules`);
   },
 
-  async createBadgeUnlockRule(badgeId: string, rule: BadgeUnlockRuleCreate): Promise<BadgeUnlockRule> {
-    return apiClient.post<BadgeUnlockRule>(`${BADGES_BASE}/${badgeId}/rules`, rule);
+  async createBadgeUnlockRule(
+    badgeId: string,
+    rule: BadgeUnlockRuleCreate,
+  ): Promise<BadgeUnlockRule> {
+    return apiClient.post<BadgeUnlockRule>(
+      `${BADGES_BASE}/${badgeId}/rules`,
+      rule,
+    );
   },
 
   // User Badges
   async getUserBadges(
     userId: string,
-    params?: { is_displayed?: boolean; skip?: number; limit?: number }
+    params?: { is_displayed?: boolean; skip?: number; limit?: number },
   ): Promise<UserBadge[]> {
     const queryParams = new URLSearchParams();
-    if (params?.is_displayed !== undefined) queryParams.append("is_displayed", params.is_displayed.toString());
-    if (params?.skip !== undefined) queryParams.append("skip", params.skip.toString());
-    if (params?.limit !== undefined) queryParams.append("limit", params.limit.toString());
+    if (params?.is_displayed !== undefined)
+      queryParams.append("is_displayed", params.is_displayed.toString());
+    if (params?.skip !== undefined)
+      queryParams.append("skip", params.skip.toString());
+    if (params?.limit !== undefined)
+      queryParams.append("limit", params.limit.toString());
 
     const endpoint = `${BADGES_BASE}/user/${userId}${queryParams.toString() ? `?${queryParams}` : ""}`;
     return apiClient.get<UserBadge[]>(endpoint);
@@ -78,12 +93,15 @@ export const badgeService = {
 
   async getUserBadgeProgress(
     userId: string,
-    params?: { is_unlocked?: boolean; skip?: number; limit?: number }
+    params?: { is_unlocked?: boolean; skip?: number; limit?: number },
   ): Promise<BadgeProgress[]> {
     const queryParams = new URLSearchParams();
-    if (params?.is_unlocked !== undefined) queryParams.append("is_unlocked", params.is_unlocked.toString());
-    if (params?.skip !== undefined) queryParams.append("skip", params.skip.toString());
-    if (params?.limit !== undefined) queryParams.append("limit", params.limit.toString());
+    if (params?.is_unlocked !== undefined)
+      queryParams.append("is_unlocked", params.is_unlocked.toString());
+    if (params?.skip !== undefined)
+      queryParams.append("skip", params.skip.toString());
+    if (params?.limit !== undefined)
+      queryParams.append("limit", params.limit.toString());
 
     const endpoint = `${BADGES_BASE}/user/${userId}/progress${queryParams.toString() ? `?${queryParams}` : ""}`;
     return apiClient.get<BadgeProgress[]>(endpoint);
@@ -101,6 +119,8 @@ export const badgeService = {
   // Auto-Award
   async autoAwardBadges(userId?: string): Promise<BadgeAutoAwardResult> {
     const queryParams = userId ? `?user_id=${userId}` : "";
-    return apiClient.post<BadgeAutoAwardResult>(`${BADGES_BASE}/auto-award${queryParams}`);
+    return apiClient.post<BadgeAutoAwardResult>(
+      `${BADGES_BASE}/auto-award${queryParams}`,
+    );
   },
 };

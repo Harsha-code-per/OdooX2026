@@ -24,10 +24,7 @@ export type RewardCategory =
   | "donation"
   | "time_off";
 
-export type RewardStatus =
-  | "available"
-  | "out_of_stock"
-  | "discontinued";
+export type RewardStatus = "available" | "out_of_stock" | "discontinued";
 
 export interface RewardRedemption {
   id: string;

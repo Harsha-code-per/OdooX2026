@@ -4,18 +4,15 @@
  * React hooks for notification system
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationService } from "@/services/notification-service";
 import type {
-  Notification,
-  NotificationPreference,
-  NotificationSummary,
-  NotificationCreate,
-  NotificationUpdate,
-  NotificationPreferenceUpdate,
   BatchNotificationRequest,
-  MarkReadRequest,
   DeleteNotificationsRequest,
+  MarkReadRequest,
+  NotificationCreate,
+  NotificationPreferenceUpdate,
+  NotificationUpdate,
 } from "@/types/notification";
 
 // Notification Hooks
@@ -77,8 +74,13 @@ export function useUpdateNotification() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ notificationId, update }: { notificationId: string; update: NotificationUpdate }) =>
-      notificationService.updateNotification(notificationId, update),
+    mutationFn: ({
+      notificationId,
+      update,
+    }: {
+      notificationId: string;
+      update: NotificationUpdate;
+    }) => notificationService.updateNotification(notificationId, update),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
@@ -126,7 +128,9 @@ export function useUpdateMyNotificationPreferences() {
     mutationFn: (preferences: NotificationPreferenceUpdate) =>
       notificationService.updateMyPreferences(preferences),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications", "preferences"] });
+      queryClient.invalidateQueries({
+        queryKey: ["notifications", "preferences"],
+      });
     },
   });
 }
@@ -154,12 +158,15 @@ export function useUnreadNotifications() {
 
 // Custom hook for marking all as read
 export function useMarkAllAsRead() {
-  const { data: notifications } = useNotifications({ is_read: false, limit: 100 });
+  const { data: notifications } = useNotifications({
+    is_read: false,
+    limit: 100,
+  });
   const markAsRead = useMarkNotificationsAsRead();
 
   return useMutation({
     mutationFn: () => {
-      const notificationIds = notifications?.map(n => n.id) || [];
+      const notificationIds = notifications?.map((n) => n.id) || [];
       return markAsRead.mutateAsync({ notification_ids: notificationIds });
     },
   });

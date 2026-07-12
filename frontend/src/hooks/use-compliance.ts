@@ -4,20 +4,16 @@
  * React hooks for compliance issues management
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 import { complianceService } from "@/services/compliance-service";
 import type {
-  ComplianceIssue,
-  ComplianceIssueComment,
-  ComplianceIssueAttachment,
-  ComplianceSummaryStats,
-  ComplianceOverdueCheck,
-  ComplianceIssueCreate,
-  ComplianceIssueUpdate,
   ComplianceIssueAssignment,
-  ComplianceIssueEscalation,
-  ComplianceIssueCommentCreate,
   ComplianceIssueAttachmentCreate,
+  ComplianceIssueCommentCreate,
+  ComplianceIssueCreate,
+  ComplianceIssueEscalation,
+  ComplianceIssueUpdate,
 } from "@/types/compliance";
 
 // Compliance Issue Hooks
@@ -78,11 +74,18 @@ export function useUpdateComplianceIssue() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ issueId, update }: { issueId: string; update: ComplianceIssueUpdate }) =>
-      complianceService.updateComplianceIssue(issueId, update),
+    mutationFn: ({
+      issueId,
+      update,
+    }: {
+      issueId: string;
+      update: ComplianceIssueUpdate;
+    }) => complianceService.updateComplianceIssue(issueId, update),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["compliance"] });
-      queryClient.invalidateQueries({ queryKey: ["compliance", "issues", variables.issueId] });
+      queryClient.invalidateQueries({
+        queryKey: ["compliance", "issues", variables.issueId],
+      });
     },
   });
 }
@@ -128,7 +131,9 @@ export function useCreateIssueComment() {
     mutationFn: (comment: ComplianceIssueCommentCreate) =>
       complianceService.createIssueComment(comment),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["compliance", "comments", variables.compliance_issue_id] });
+      queryClient.invalidateQueries({
+        queryKey: ["compliance", "comments", variables.compliance_issue_id],
+      });
       queryClient.invalidateQueries({ queryKey: ["compliance"] });
     },
   });
@@ -150,24 +155,22 @@ export function useCreateIssueAttachment() {
     mutationFn: (attachment: ComplianceIssueAttachmentCreate) =>
       complianceService.createIssueAttachment(attachment),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["compliance", "attachments", variables.compliance_issue_id] });
+      queryClient.invalidateQueries({
+        queryKey: ["compliance", "attachments", variables.compliance_issue_id],
+      });
     },
   });
 }
 
 // Custom hooks for specific use cases
 export function useMyComplianceIssues() {
-  const { data: user } = useAuth(); // Assuming you have an auth hook
-  return useComplianceIssues(
-    user ? { owner_id: user.id } : undefined
-  );
+  const { user } = useAuth();
+  return useComplianceIssues(user ? { owner_id: user.id } : undefined);
 }
 
 export function useDepartmentComplianceIssues() {
-  const { data: user } = useAuth(); // Assuming you have an auth hook
-  return useComplianceIssues(
-    user?.department_id ? { department_id: user.department_id } : undefined
-  );
+  const { user } = useAuth();
+  return useComplianceIssues(user ? { department_id: user.id } : undefined);
 }
 
 export function useOverdueIssuesCount() {
@@ -183,8 +186,10 @@ export function useCriticalIssues() {
 // Hook for compliance dashboard
 export function useComplianceDashboard() {
   const { data: summary, isLoading: summaryLoading } = useComplianceSummary();
-  const { data: overdue, isLoading: overdueLoading } = useOverdueComplianceIssues();
-  const { data: myIssues, isLoading: myIssuesLoading } = useMyComplianceIssues();
+  const { data: overdue, isLoading: overdueLoading } =
+    useOverdueComplianceIssues();
+  const { data: myIssues, isLoading: myIssuesLoading } =
+    useMyComplianceIssues();
 
   return {
     totalIssues: summary?.total_issues || 0,
