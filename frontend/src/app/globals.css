@@ -61,8 +61,19 @@
   --radius-lg: var(--radius); /* 8px  */
   --radius-xl: calc(var(--radius) * 1.5); /* 12px — cards */
   --radius-2xl: calc(var(--radius) * 2); /* 16px — dialogs */
-  --radius-3xl: calc(var(--radius) * 3); /* 24px — extra large */
   --radius-full: 9999px;
+
+  --animate-shimmer: shimmer 8s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 }
 
 /* ─── Light Theme ─────────────────────────────────────────────────────────── */

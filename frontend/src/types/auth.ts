@@ -29,6 +29,8 @@ export interface RefreshTokenPayload {
   refresh_token: string;
 }
 
+import type { UserRole } from "@/constants/roles";
+
 /* ─── Response Shapes ──────────────────────────────────────────────────────── */
 export interface LoginResponse {
   access_token: string;
@@ -38,7 +40,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     email: string;
-    role: string;
+    role: UserRole;
   };
 }
 
